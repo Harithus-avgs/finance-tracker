@@ -556,6 +556,62 @@ button.calendar-cell:hover, button.calendar-cell.selected { position: relative; 
 @media (max-width: 900px) { .budget-group-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 520px) { .budget-group-grid { gap: 7px; } .budget-group-card { padding: 10px; } .budget-group-card > b { font-size: 12px; } }
 
+/* Keep the finance tiles calm and readable at both desktop and phone widths. */
+.account-list .simple-row, .credit-cards-list .simple-row, .investment-tile {
+  min-height: 126px;
+  grid-template-columns: 38px minmax(0, 1fr);
+  align-content: start;
+  gap: 9px 12px;
+  padding: 16px;
+  border-color: var(--line);
+  border-radius: 14px;
+  box-shadow: 0 3px 12px rgba(36, 48, 36, .025);
+}
+.account-list .row-icon, .credit-cards-list .row-icon, .investment-tile .row-icon { grid-row: 1 / span 2; width: 38px; height: 38px; border-radius: 11px; }
+.account-list .row-copy, .credit-cards-list .row-copy, .investment-tile .row-copy { align-self: center; gap: 4px; }
+.account-list .row-copy small, .credit-cards-list .row-copy small, .investment-tile .row-copy small { color: var(--muted); font-size: 11px; }
+.account-list .row-copy b, .credit-cards-list .row-copy b, .investment-tile .row-copy b { color: var(--ink); font-size: 14px; line-height: 1.35; white-space: normal; }
+.account-list .simple-row > strong, .credit-cards-list .simple-row > strong, .investment-tile > strong { grid-column: 2; justify-self: start; align-self: start; color: var(--ink); font: 700 16px/1.35 'Manrope', sans-serif; white-space: normal; overflow-wrap: anywhere; }
+.account-list .simple-row > strong::before, .credit-cards-list .simple-row > strong::before { display: block; margin-bottom: 2px; color: var(--muted); font: 600 10px/1.3 'DM Sans', sans-serif; letter-spacing: .02em; }
+.account-list .simple-row > strong::before { content: 'Current balance'; }
+.credit-cards-list .simple-row > strong::before { content: 'Outstanding'; }
+.account-list .row-actions, .investment-tile .row-actions { grid-column: 1 / -1; justify-self: end; margin: 1px 0 0; }
+.investment-tile .row-actions .text-button, .account-list .row-actions .text-button { min-height: 30px; padding: 4px 2px; font-size: 11px; }
+.panel:has(.asset-item) { display: grid; grid-template-columns: repeat(auto-fit, minmax(245px, 1fr)); gap: 11px; }
+.panel:has(.asset-item) > .panel-heading, .panel:has(.asset-item) > .empty-state { grid-column: 1 / -1; }
+.asset-item { min-width: 0; display: grid; gap: 12px; padding: 16px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); box-shadow: 0 3px 12px rgba(36, 48, 36, .025); }
+.asset-title { align-items: flex-start; gap: 10px; color: var(--ink); font-size: 14px; line-height: 1.4; }
+.asset-title b { min-width: 0; overflow-wrap: anywhere; }
+.asset-title > span { flex: 0 0 auto; padding: 4px 8px; border-radius: 99px; background: var(--green-soft); color: var(--green-dark); font-size: 11px; }
+.asset-item .progress-track { margin: 0; }
+.asset-meta { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 12px; color: var(--muted); font-size: 11px; line-height: 1.45; }
+.asset-meta span { min-width: 0; overflow-wrap: anywhere; }
+.asset-item > .row-actions { justify-content: flex-end; flex-wrap: wrap; gap: 10px; margin-top: 0; padding-top: 10px; border-top: 1px solid var(--line); }
+.budget-item { min-width: 0; display: grid; align-content: start; gap: 12px; padding: 16px; border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 3px 12px rgba(36, 48, 36, .025); }
+.budget-item > div:first-child { align-items: baseline; gap: 8px; margin: 0; }
+.budget-item > div:first-child b { min-width: 0; overflow-wrap: anywhere; color: var(--ink); font-size: 14px; line-height: 1.35; }
+.budget-item > div:first-child small { flex: 0 0 auto; padding: 4px 7px; border-radius: 7px; background: var(--surface-soft); color: var(--muted); font-size: 10px; }
+.budget-item-values { gap: 8px; margin: 0; }
+.budget-item-values > span { gap: 5px; padding: 10px; border: 1px solid var(--line); border-radius: 10px; }
+.budget-item-values small { font-size: 10px; font-weight: 600; }
+.budget-item-values b { overflow-wrap: anywhere; font-size: 14px; line-height: 1.3; }
+.budget-item > .progress-track { height: 6px; }
+.budget-item > .row-actions { justify-content: flex-end; gap: 12px; margin-top: 0; padding-top: 9px; border-top: 1px solid var(--line); }
+.panel:has(.debt-item) { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+.debt-item { min-width: 0; display: grid; align-content: start; gap: 12px; padding: 16px; border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 3px 12px rgba(36, 48, 36, .025); }
+.debt-item .asset-title { margin: 0; }
+.debt-item .asset-meta { grid-template-columns: 1fr; gap: 5px; }
+.debt-item .muted-paragraph { overflow-wrap: anywhere; }
+.debt-item > .row-actions { flex-wrap: wrap; gap: 12px; margin-top: 0; padding-top: 10px; border-top: 1px solid var(--line); }
+.credit-cards-list { gap: 10px; }
+@media (max-width: 520px) {
+  .panel:has(.asset-item), .panel:has(.debt-item) { grid-template-columns: 1fr; }
+  .asset-meta { grid-template-columns: 1fr; gap: 4px; }
+  .budget-item-values { gap: 6px; }
+  .budget-item-values > span { padding: 9px 8px; }
+  .account-list .simple-row, .credit-cards-list .simple-row, .investment-tile, .asset-item, .debt-item, .budget-item { padding: 14px; }
+}
+
 :root[data-theme="dark"] { color-scheme: dark; --bg: #171b18; --surface: #202621; --surface-soft: #252d27; --line: #343d36; --line-strong: #465148; --ink: #e5ebe4; --muted: #9ca99d; --muted-dark: #bdc8bd; --green: #78b68d; --green-dark: #a6d2b1; --green-soft: #293b2e; --mint: #344b38; --amber-soft: #453e2e; --shadow: 0 18px 50px rgba(0,0,0,.28); background: var(--bg); }
 :root[data-theme="dark"] body { color: var(--ink); background: var(--bg); }
 :root[data-theme="dark"] .sidebar, :root[data-theme="dark"] .topbar, :root[data-theme="dark"] .mobile-nav { background: #1c221e; }
