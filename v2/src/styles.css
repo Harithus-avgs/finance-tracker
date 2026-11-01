@@ -531,6 +531,11 @@ button.calendar-cell:hover, button.calendar-cell.selected { position: relative; 
 .budget-item > div:first-child { display: grid; gap: 7px; margin-bottom: 11px; }
 .budget-item > div:first-child span { font-weight: 600; }
 .budget-item > .row-actions { margin-top: 10px; }
+.budget-item-values { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; margin-bottom: 10px; }
+.budget-item-values > span { min-width: 0; display: grid; gap: 4px; padding: 9px 10px; border-radius: 8px; background: var(--surface-soft); color: var(--muted-dark); }
+.budget-item-values small { color: var(--muted); font-size: 10px; }
+.budget-item-values b { color: var(--ink); font-size: 13px; }
+.budget-item-values .over-budget b, .budget-item-values .over-budget small { color: #a64f3e; }
 .panel:has(.debt-item) { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 11px; }
 .panel:has(.debt-item) > .panel-heading, .panel:has(.debt-item) > .empty-state { grid-column: 1 / -1; }
 .debt-item { padding: 16px; border: 1px solid var(--line); border-radius: 11px; background: var(--surface); }
@@ -561,4 +566,3 @@ button.calendar-cell:hover, button.calendar-cell.selected { position: relative; 
 :root[data-theme="dark"] .account-menu button, :root[data-theme="dark"] .user-chip { color: var(--ink); }
 :root[data-theme="dark"] input, :root[data-theme="dark"] select, :root[data-theme="dark"] textarea { color: var(--ink); background-color: #202621; border-color: var(--line-strong); }
 :root[data-theme="dark"] .empty-state, :root[data-theme="dark"] .mobile-nav button { color: var(--muted-dark); }
-
