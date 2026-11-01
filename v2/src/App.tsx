@@ -27,6 +27,7 @@ export default function App() {
   const [session, setSession] = useState<Session | null>(null);
   const [authReady, setAuthReady] = useState(!isSupabaseConfigured || previewMode);
   const [data, setData] = useState<FinanceData | null>(previewMode ? emptyFinanceData() : null);
+  const [dataReady, setDataReady] = useState(previewMode);
   const [loading, setLoading] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -49,7 +50,7 @@ export default function App() {
     }).catch(() => setAuthReady(true));
     const { data: listener } = supabase.auth.onAuthStateChange((_event, value) => {
       setSession(value);
-      if (!previewMode) setData(null);
+      if (!previewMode) { setData(null); setDataReady(false); }
       setError('');
     });
     return () => { alive = false; listener.subscription.unsubscribe(); };
@@ -57,12 +58,13 @@ export default function App() {
 
   useEffect(() => {
     if (previewMode && !session?.user.id) return;
-    if (!session?.user.id) { setData(null); return; }
+    if (!session?.user.id) { setData(null); setDataReady(false); return; }
     let alive = true;
     setLoading(true);
+    setDataReady(false);
     loadFinanceData(session.user.id)
-      .then((value) => { if (alive) setData(value); })
-      .catch((reason: Error) => { if (alive) setError(reason.message); })
+      .then((value) => { if (alive) { setData(value); setDataReady(true); } })
+      .catch((reason: Error) => { if (alive) { setError(reason.message); setDataReady(true); } })
       .finally(() => { if (alive) setLoading(false); });
     return () => { alive = false; };
   }, [session?.user.id]);
@@ -122,7 +124,7 @@ export default function App() {
   const startFresh = async () => {
     if (!user) return;
     setBusy(true); setError('');
-    try { const value = emptyFinanceData(); await saveDomains(user.id, value); setData(value); setToast('Your finance space is ready.'); }
+    try { const value = emptyFinanceData(); await saveDomains(user.id, value); setData(value); setDataReady(true); setToast('Your finance space is ready.'); }
     catch (reason) { setError((reason as Error).message); }
     finally { setBusy(false); }
   };
@@ -135,7 +137,7 @@ export default function App() {
     try {
       const value = normalizeBackup(JSON.parse(await file.text()));
       if (!value) throw new Error('Choose a valid JSON backup exported from Finance Tracker v1.');
-      await replaceDomains(user.id, value); setData(value); setToast('Your v1 data has been imported.');
+      await replaceDomains(user.id, value); setData(value); setDataReady(true); setToast('Your v1 data has been imported.');
     } catch (reason) { setError((reason as Error).message); }
     finally { setBusy(false); event.target.value = ''; }
   };
@@ -376,6 +378,7 @@ export default function App() {
   if (!authReady) return <div className="loading-screen"><span className="loader" />Opening your finance space…</div>;
   if (!isSupabaseConfigured && !previewMode) return <ConfigScreen />;
   if (!session && !previewMode) return <SignIn onSignIn={signIn} busy={busy} error={error} />;
+  if (session?.user.id && !dataReady) return <div className="loading-screen"><span className="loader" />Syncing your finance data…</div>;
   if (loading) return <div className="loading-screen"><span className="loader" />Syncing your finance data…</div>;
   if (error && !data) return <div className="loading-screen error-screen"><ShieldCheck size={24} /><h2>We couldn’t load your data.</h2><p>{error}</p><button className="outline-button" onClick={() => window.location.reload()}>Try again</button><button className="text-button" onClick={signOut}>Sign out</button></div>;
   if (!data) return <Setup name={firstName} busy={busy} error={error} fileRef={importRef} onFresh={startFresh} onImport={importBackup} onSignOut={signOut} />;
@@ -605,7 +608,7 @@ function Budgets({ data, month, onMonthChange, onAdd, onEdit, onDelete, onCopyPr
   const total = budgets.reduce((sum, row) => sum + recordNumber(row.amount), 0);
   const spentFor = (category: string) => expenseRows.filter((row) => recordText(row.category) === category).reduce((sum, row) => sum + recordNumber(row.amount), 0);
   const groupSummary = data.budgetGroups.map((group) => { const names = new Set(data.categories.filter((row) => row.groupId === group.id).map((row) => recordText(row.name))); const limit = budgets.filter((row) => names.has(recordText(row.category))).reduce((sum, row) => sum + recordNumber(row.amount), 0); const used = expenseRows.filter((row) => names.has(recordText(row.category))).reduce((sum, row) => sum + recordNumber(row.amount), 0); return { id: group.id, name: recordText(group.name, 'Group'), icon: recordText(group.icon, '◦'), limit, used }; });
-  return <><Heading eyebrow="A PLAN THAT CAN BREATHE" title="Budgets" description="Gentle guardrails for the things that matter to you." action={!budgets.length && <span className="row-actions"><button className="outline-button" onClick={onCopyPrevious}>Copy previous month</button><button className="primary-button" onClick={onAdd}><Plus size={17} />New budget</button></span>} /><MonthPicker month={month} onChange={onMonthChange} /><div className="budget-summary"><span><small>PLANNED THIS MONTH</small><b>{money(total)}</b></span><span><small>SPENT SO FAR</small><b>{money(totalSpent)}</b></span><span><small>REMAINING</small><b>{money(Math.max(0, total - totalSpent))}</b></span></div><div className="budget-group-grid">{groupSummary.map((group) => <div className="budget-group-card" key={group.id}><span>{group.icon} {group.name}</span><b>{money(group.used)} <small>of {money(group.limit)}</small></b><div className="progress-track"><i style={{ width: `${group.limit ? Math.min(100, group.used / group.limit * 100) : 0}%` }} /></div></div>)}</div><section className="panel"><div className="panel-heading"><div><span className="eyebrow">{monthLabel(month).toLocaleUpperCase()}</span><h2>Budget progress</h2></div><span className="quiet-badge">{budgets.length} categories</span></div>{budgets.length ? budgets.map((row) => { const value = recordNumber(row.amount); const category = recordText(row.category, 'Other'); const spent = spentFor(category); const remaining = value - spent; const percent = value ? Math.min(100, spent / value * 100) : 0; return <div className="budget-item" key={row.id}><div><b>{category}</b><small>Budget {money(value)}</small></div><div className="budget-item-values"><span><small>Spent</small><b>{money(spent)}</b></span><span className={remaining < 0 ? 'over-budget' : ''}><small>{remaining < 0 ? 'Over by' : 'Remaining'}</small><b>{money(Math.abs(remaining))}</b></span></div><div className="progress-track"><i style={{ width: percent + '%' }} /></div><div className="row-actions"><button className="text-button" onClick={() => onEdit(row)}>Edit</button><button className="text-button danger-text" onClick={() => onDelete(row)}>Delete</button></div></div>; }) : <Empty icon={<Wallet size={19} />} title="Your budget space is open" text="Monthly budgets will make your daily spending guide more useful." action={<button className="primary-button small" onClick={onAdd}><Plus size={16} />Add a budget</button>} />}</section></>;
+  return <><Heading eyebrow="A PLAN THAT CAN BREATHE" title="Budgets" description="Gentle guardrails for the things that matter to you." action={!budgets.length && <span className="row-actions"><button className="outline-button" onClick={onCopyPrevious}>Copy previous month</button><button className="primary-button" onClick={onAdd}><Plus size={17} />New budget</button></span>} /><MonthPicker month={month} onChange={onMonthChange} /><div className="budget-summary"><span><small>PLANNED THIS MONTH</small><b>{money(total)}</b></span><span><small>SPENT SO FAR</small><b>{money(totalSpent)}</b></span><span><small>REMAINING</small><b>{money(Math.max(0, total - totalSpent))}</b></span></div><div className="budget-group-grid">{groupSummary.map((group) => <div className="budget-group-card" key={group.id}><span>{group.icon} {group.name}</span><b>{money(group.used)} <small>of {money(group.limit)}</small></b><div className="progress-track"><i style={{ width: `${group.limit ? Math.min(100, group.used / group.limit * 100) : 0}%` }} /></div></div>)}</div><section className="panel"><div className="panel-heading"><div><span className="eyebrow">{monthLabel(month).toLocaleUpperCase()}</span><h2>Budget progress</h2></div><span className="quiet-badge">{budgets.length} categories</span></div>{budgets.length ? budgets.map((row) => { const value = recordNumber(row.amount); const category = recordText(row.category, 'Other'); const spent = spentFor(category); const remaining = value - spent; const percent = value ? Math.min(100, spent / value * 100) : 0; return <div className="budget-item" key={row.id}><div><b>{category}</b><small>Budget {money(value)}</small></div><div className="progress-track"><i style={{ width: percent + '%' }} /></div><div className="budget-item-values"><span><small>Spent</small><b>{money(spent)}</b></span><span className={remaining < 0 ? 'over-budget' : ''}><small>{remaining < 0 ? 'Over by' : 'Remaining'}</small><b>{money(Math.abs(remaining))}</b></span></div><div className="row-actions"><button className="text-button" onClick={() => onEdit(row)}>Edit</button><button className="text-button danger-text" onClick={() => onDelete(row)}>Delete</button></div></div>; }) : <Empty icon={<Wallet size={19} />} title="Your budget space is open" text="Monthly budgets will make your daily spending guide more useful." action={<button className="primary-button small" onClick={onAdd}><Plus size={16} />Add a budget</button>} />}</section></>;
 }
 function CreditDebt({ data, onAddDebt, onEditDebt, onDeleteDebt, onLogEmi, onEditScore }: { data: FinanceData; onAddDebt: () => void; onEditDebt: (row: FinanceRecord) => void; onDeleteDebt: (row: FinanceRecord) => void; onLogEmi: (row: FinanceRecord) => void; onEditScore: () => void }) {
   const cards = data.accounts.filter((row) => row.type === 'credit');
