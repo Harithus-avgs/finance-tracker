@@ -1,0 +1,6435 @@
+<!DOCTYPE html>
+
+
+ 
+
+<html lang="en">
+
+
+ 
+
+<head>
+
+
+ 
+
+  <meta charset="UTF-8">
+
+
+ 
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+ 
+
+  <meta name="description" content="A premium, minimalist frontend-only personal finance tracker tailored for Indian Rupees.">
+
+
+ 
+
+  <title>Finance Tracker</title>
+
+
+
+
+ 
+
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+
+ 
+
+  <link rel="stylesheet" href="styles.css">
+
+
+
+ 
+
+
+
+
+ 
+
+  <!-- Avoid light theme flash: read preference and apply immediately before paint -->
+
+
+ 
+
+  <script>
+
+
+ 
+
+    (function() {
+
+
+ 
+
+      const theme = localStorage.getItem('finance-tracker:theme') || 'dark';
+
+
+ 
+
+      document.documentElement.setAttribute('data-theme', theme);
+
+
+ 
+
+    })();
+
+
+ 
+
+  </script>
+
+
+ 
+
+</head>
+
+
+ 
+
+<body>
+
+
+
+ 
+
+
+
+
+ 
+
+  <!-- Topbar -->
+
+
+ 
+
+  <header class="topbar">
+
+
+ 
+
+    <div class="topbar-left">
+
+
+ 
+
+      <span class="logo">Finance Tracker</span>
+
+
+ 
+
+    </div>
+
+
+ 
+
+   
+
+
+ 
+
+    <div class="topbar-right">
+
+
+ 
+
+      <!-- Nav Tabs -->
+
+
+ 
+
+      <nav class="tabs-nav" id="main-nav">
+
+
+ 
+
+        <button class="tab-btn active" data-view="dashboard">Dashboard</button>
+
+
+ 
+
+        <button class="tab-btn" data-view="calendar">
+
+
+ 
+
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;">
+
+
+ 
+
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+
+
+ 
+
+            <line x1="16" y1="2" x2="16" y2="6"></line>
+
+
+ 
+
+            <line x1="8" y1="2" x2="8" y2="6"></line>
+
+
+ 
+
+            <line x1="3" y1="10" x2="21" y2="10"></line>
+
+
+ 
+
+          </svg>
+
+
+ 
+
+          Calendar
+
+
+ 
+
+        </button>
+
+
+ 
+
+        <button class="tab-btn" data-view="transactions">Transactions</button>
+
+
+ 
+
+        <button class="tab-btn" data-view="mymoney">My Money</button>
+
+
+ 
+
+        <button class="tab-btn" data-view="creditdebt">Credit & Debt</button>
+
+
+ 
+
+        <button class="tab-btn" data-view="planning">Planning</button>
+
+
+ 
+
+        <button class="tab-btn" data-view="budgets">Budgets</button>
+
+
+ 
+
+        <button class="tab-btn" data-view="categories">Categories</button>
+
+
+ 
+
+      </nav>
+
+
+
+ 
+
+
+
+
+ 
+
+      <!-- Action Cluster -->
+
+
+ 
+
+      <button class="icon-btn" id="theme-toggle" title="Toggle theme">☀</button>
+
+
+
+ 
+
+
+
+
+ 
+
+      <button class="icon-btn" id="export-btn" title="Export Backup (JSON)">&darr;</button>
+
+
+
+ 
+
+
+
+
+ 
+
+      <button class="icon-btn" id="import-btn" title="Import Backup (JSON)">&uarr;</button>
+
+
+ 
+
+      <input type="file" id="import-input" accept=".json" class="hidden">
+
+
+ 
+
+    </div>
+
+
+ 
+
+  </header>
+
+
+
+ 
+
+
+
+
+ 
+
+  <!-- View Sections -->
+
+
+
+
+ 
+
+  <!-- DASHBOARD -->
+
+
+ 
+
+  <section id="view-dashboard" class="view-section active">
+
+
+ 
+
+    <!-- Month Picker -->
+
+
+ 
+
+    <div class="month-picker">
+
+
+ 
+
+      <button class="icon-btn prev-month-btn" title="Previous Month">&lsaquo;</button>
+
+
+ 
+
+      <span class="month-label current-month-label">June 2026</span>
+
+
+ 
+
+      <button class="icon-btn next-month-btn" title="Next Month">&rsaquo;</button>
+
+
+ 
+
+    </div>
+
+
+ 
+
+
+
+
+ 
+
+    <!-- Daily Spending Guide Widget -->
+
+
+ 
+
+    <div class="card" id="db-daily-spend-widget" style="padding: 20px; margin-bottom: 20px; border-left: 4px solid var(--income);">
+
+
+ 
+
+      <div style="display: flex; justify-content: space-around; align-items: center; text-align: center; flex-wrap: wrap; gap: 16px;">
+
+
+ 
+
+        <div style="flex: 1; min-width: 120px;">
+
+
+ 
+
+          <span style="font-size: 13px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 4px;">Lifestyle Budget Remaining</span>
+
+
+ 
+
+          <strong style="font-size: 26px; color: var(--income);" id="db-widget-income-left">₹0.00</strong>
+
+
+ 
+
+        </div>
+
+
+ 
+
+        <div style="width: 1px; height: 40px; background-color: var(--border); flex-shrink: 0;" class="mobile-hide"></div>
+
+
+ 
+
+        <div style="flex: 1; min-width: 120px;">
+
+
+ 
+
+          <span style="font-size: 13px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 4px;">Days Remaining</span>
+
+
+ 
+
+          <strong style="font-size: 26px;" id="db-widget-days-remaining">0</strong>
+
+
+ 
+
+        </div>
+
+
+ 
+
+        <div style="width: 1px; height: 40px; background-color: var(--border); flex-shrink: 0;" class="mobile-hide"></div>
+
+
+ 
+
+        <div style="flex: 1; min-width: 120px;">
+
+
+ 
+
+          <span style="font-size: 13px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 4px;">Safe Daily Spend</span>
+
+
+ 
+
+          <strong style="font-size: 26px; color: var(--accent);" id="db-widget-safe-spend">₹0/day</strong>
+
+
+ 
+
+        </div>
+
+
+ 
+
+      </div>
+
+
+ 
+
+    </div>
+
+
+
+ 
+
+
+
+
+ 
+
+    <!-- Smart Dashboard Cards (Actionable Health & Core Metrics) -->
+
+
+ 
+
+    <div class="grid-6" id="dashboard-smart-summary" style="margin-bottom: 20px;">
+
+
+ 
+
+      <div class="card">
+
+
+ 
+
+        <span class="card-title">Available to Spend</span>
+
+
+ 
+
+        <span class="card-value normal-text" id="db-spendable-val">₹0.00</span>
+
+
+ 
+
+        <span class="card-subline">Remaining Budget</span>
+
+
+ 
+
+      </div>
+
+
+ 
+
+      <div class="card">
+
+
+ 
+
+        <span class="card-title">Total Cash</span>
+
+
+ 
+
+        <span class="card-value normal-text" id="db-balance-val">₹0.00</span>
+
+
+ 
+
+        <span class="card-subline">All Bank/Cash Accounts</span>
+
+
+ 
+
+      </div>
+
+
+ 
+
+      <div class="card">
+
+
+ 
+
+        <span class="card-title">Remaining Debt</span>
+
+
+ 
+
+        <span class="card-value expense-text" id="db-debt-val">₹0.00</span>
+
+
+ 
+
+        <span class="card-subline" id="db-debt-sub">0 active EMIs</span>
+
+
+ 
+
+      </div>
+
+
+ 
+
+      <div class="card">
+
+
+ 
+
+        <span class="card-title">Emergency Fund</span>
+
+
+ 
+
+        <span class="card-value income-text" id="db-emergency-val">0%</span>
+
+
+ 
+
+        <span class="card-subline" id="db-emergency-sub">₹0 saved</span>
+
+
+ 
+
+      </div>
+
+
+ 
+
+      <div class="card">
+
+
+ 
+
+        <span class="card-title">Next Target Goal</span>
+
+
+ 
+
+        <span class="card-value normal-text" id="db-goal-val">N/A</span>
+
+
+ 
+
+        <span class="card-subline" id="db-goal-sub">0% progress</span>
+
+
+ 
+
+      </div>
+
+
+ 
+
+      <div class="card clickable-card" id="db-health-card" onclick="openHealthScoreModal()" style="cursor: pointer; position: relative;">
+
+
+ 
+
+        <span class="card-title">Financial Health</span>
+
+
+ 
+
+        <span class="card-value normal-text" id="db-health-val">0 / 100</span>
+
+
+ 
+
+        <span class="card-subline" id="db-health-sub">Click for details</span>
+
+
+ 
+
+      </div>
+
+
+ 
+
+    </div>
+
+
+
+ 
+
+
+
+
+ 
+
+    <!-- Monthly Performance Metrics -->
+
+
+ 
+
+    <div class="section-header" style="margin-top: 24px;">
+
+
+ 
+
+      <h2>Monthly Performance</h2>
+
+
+ 
+
+    </div>
+
+
+ 
+
+    <div class="grid-4" id="dashboard-monthly-summary" style="margin-bottom: 20px;">
+
+
+ 
+
+      <div class="card">
+
+
+ 
+
+        <span class="card-title">Income</span>
+
+
+ 
+
+        <span class="card-value income-text" id="db-income-val">₹0.00</span>
+
+
+ 
+
+        <span class="card-subline">This Month</span>
+
+
+ 
+
+      </div>
+
+
+ 
+
+      <div class="card">
+
+
+ 
+
+        <span class="card-title">Expenses</span>
+
+
+ 
+
+        <span class="card-value expense-text" id="db-expense-val">₹0.00</span>
+
+
+ 
+
+        <span class="card-subline">This Month</span>
+
+
+ 
+
+      </div>
+
+
+ 
+
+      <div class="card">
+
+
+ 
+
+        <span class="card-title">Net Cash Flow</span>
+
+
+ 
+
+        <span class="card-value normal-text" id="db-net-val">₹0.00</span>
+
+
+ 
+
+        <span class="card-subline">This Month</span>
+
+
+ 
+
+      </div>
+
+
+ 
+
+      <div class="card">
+
+
+ 
+
+        <span class="card-title">Savings Rate</span>
+
+
+ 
+
+        <span class="card-value income-text" id="db-rate-val">0%</span>
+
+
+ 
+
+        <span class="card-subline">This Month</span>
+
+
+ 
+
+      </div>
+
+
+ 
+
+    </div>
+
+
+
+
+ 
+
+
+
+
+ 
+
+    <!-- End of Month Assistant Suggestion Card -->
+
+
+ 
+
+    <div id="db-surplus-assistant-card" class="card hidden" style="padding: 20px; margin-bottom: 20px; border-left: 4px solid var(--accent); background-color: rgba(59, 130, 246, 0.05);">
+
+
+ 
+
+      <!-- Filled dynamically -->
+
+
+ 
+
+    </div>
+
+
+
+ 
+
+
+
+
+ 
+
+    <!-- Smart Insights & Timeline Highlights Panel -->
+
+
+ 
+
+    <div class="grid-2" style="margin-bottom: 24px; gap: 20px;">
+
+
+ 
+
+      <div class="card" style="padding: 16px;">
+
+
+ 
+
+        <span class="card-title" style="margin-bottom: 12px; font-weight: 600; font-size: 14px;">Actionable Forecast Insights</span>
+
+
+ 
+
+        <div id="db-insights-panel" style="display: flex; flex-direction: column; gap: 8px; font-size: 13px;">
+
+
+ 
+
+          <!-- Loaded dynamically -->
+
+
+ 
+
+        </div>
+
+
+ 
+
+      </div>
+
+
+ 
+
+      <div class="card" style="padding: 16px;">
+
+
+ 
+
+        <span class="card-title" style="margin-bottom: 12px; font-weight: 600; font-size: 14px;">Upcoming Bills & Milestones</span>
+
+
+ 
+
+        <div id="db-timeline-panel" style="display: flex; flex-direction: column; gap: 8px; font-size: 13px;">
+
+
+ 
+
+          <!-- Loaded dynamically -->
+
+
+ 
+
+        </div>
+
+
+ 
+
+      </div>
+
+
+ 
+
+    </div>
+
+
+
+ 
+
+
+
+
+ 
+
+    <!-- Recurring Pending Banner Wrapper -->
+
+
+ 
+
+    <div id="db-recurring-banner-container"></div>
+
+
+
+ 
+
+
+
+
+ 
+
+    <!-- Category Breakdowns Section -->
+
+
+ 
+
+    <div class="section-header" style="margin-top: 32px;">
+
+
+ 
+
+      <h2>Category Breakdown</h2>
+
+
+ 
+
+    </div>
+
+
+ 
+
+    <div class="grid-2" style="margin-bottom: 24px; gap: 20px;">
+
+
+ 
+
+      <!-- Income Pie Chart Card -->
+
+
+ 
+
+      <div class="card" style="padding: 20px;">
+
+
+ 
+
+        <span class="card-title" style="margin-bottom: 16px; font-weight: 600; font-size: 14px;">Income by Category</span>
+
+
+ 
+
+        <div style="display: flex; align-items: center; justify-content: space-around; flex-wrap: wrap; gap: 16px;">
+
+
+ 
+
+          <div id="db-income-pie-chart" style="width: 150px; height: 150px; flex-shrink: 0;">
+
+
+ 
+
+            <!-- Render SVG donut/pie chart -->
+
+
+ 
+
+          </div>
+
+
+ 
+
+          <div id="db-income-pie-legend" style="flex: 1; min-width: 150px; display: flex; flex-direction: column; gap: 6px; font-size: 13px; max-height: 150px; overflow-y: auto; padding-right: 4px;">
+
+
+ 
+
+            <!-- Legend items loaded dynamically -->
+
+
+ 
+
+          </div>
+
+
+ 
+
+        </div>
+
+
+ 
+
+      </div>
+
+
+ 
+
+      <!-- Expense Pie Chart Card -->
+
+
+ 
+
+      <div class="card" style="padding: 20px;">
+
+
+ 
+
+        <span class="card-title" style="margin-bottom: 16px; font-weight: 600; font-size: 14px;">Expenses by Category</span>
+
+
+ 
+
+        <div style="display: flex; align-items: center; justify-content: space-around; flex-wrap: wrap; gap: 16px;">
+
+
+ 
+
+          <div id="db-expense-pie-chart" style="width: 150px; height: 150px; flex-shrink: 0;">
+
+
+ 
+
+            <!-- Render SVG donut/pie chart -->
+
+
+ 
+
+          </div>
+
+
+ 
+
+          <div id="db-expense-pie-legend" style="flex: 1; min-width: 150px; display: flex; flex-direction: column; gap: 6px; font-size: 13px; max-height: 150px; overflow-y: auto; padding-right: 4px;">
+
+
+ 
+
+            <!-- Legend items loaded dynamically -->
+
+
+ 
+
+          </div>
+
+
+ 
+
+        </div>
+
+
+ 
+
+      </div>
+
+
+ 
+
+    </div>
+
+
+
+ 
+
+
+
+
+ 
+
+    <!-- Budget progress section -->
+
+
+ 
+
+    <div class="section-header">
+
+
+ 
+
+      <h2>Budget Progress</h2>
+
+
+ 
+
+    </div>
+
+
+ 
+
+    <div class="budget-grid" id="db-budget-grid">
+
+
+ 
+
+      <!-- Filled dynamically -->
+
+
+ 
+
+    </div>
+
+
+
+ 
+
+
+
+
+ 
+
+    <!-- Recent Transactions -->
+
+
+ 
+
+    <div class="section-header">
+
+
+ 
+
+      <h2>Recent Transactions</h2>
+
+
+ 
+
+    </div>
+
+
+ 
+
+    <div class="transaction-list" id="db-recent-transactions">
+
+
+ 
+
+      <!-- Filled dynamically -->
+
+
+ 
+
+    </div>
+
+
+ 
+
+  </section>
+
+
+
+ 
+
+
+
+
+ 
+
+  <!-- CALENDAR -->
+
+
+ 
+
+  <section id="view-calendar" class="view-section">
+
+
+ 
+
+    <!-- Month Picker -->
+
+
+ 
+
+    <div class="month-picker">
+
+
+ 
+
+      <button class="icon-btn prev-month-btn" title="Previous Month">&lsaquo;</button>
+
+
+ 
+
+      <span class="month-label current-month-label">June 2026</span>
+
+
+ 
+
+      <button class="icon-btn next-month-btn" title="Next Month">&rsaquo;</button>
+
+
+ 
+
+    </div>
+
+
+
+ 
+
+
+
+
+ 
+
+    <!-- Calendar Grid -->
+
+
+ 
+
+    <div class="calendar-grid" id="calendar-grid-container">
+
+
+ 
+
+      <!-- Filled dynamically -->
+
+
+ 
+
+    </div>
+
+
+ 
+
+  </section>
+
+
+
+ 
+
+
+
+
+ 
+
+  <!-- TRANSACTIONS -->
+
+
+ 
+
+  <section id="view-transactions" class="view-section">
+
+
+ 
+
+    <!-- Month Picker -->
+
+
+ 
+
+    <div class="month-picker">
+
+
+ 
+
+      <button class="icon-btn prev-month-btn" title="Previous Month">&lsaquo;</button>
+
+
+ 
+
+      <span class="month-label current-month-label">June 2026</span>
+
+
+ 
+
+      <button class="icon-btn next-month-btn" title="Next Month">&rsaquo;</button>
+
+
+ 
+
+    </div>
+
+
+
+ 
+
+
+
+
+ 
+
+    <!-- Recurring Subsection -->
+
+
+ 
+
+    <div class="section-header" style="margin-top: 0;">
+
+
+ 
+
+      <h2>Recurring Transactions</h2>
+
+
+ 
+
+      <button class="primary" id="add-recurring-btn">+ Add Recurring</button>
+
+
+ 
+
+    </div>
+
+
+ 
+
+    <div class="recurring-categories-grid" id="recurring-rules-container">
+
+
+ 
+
+      <!-- Filled dynamically: one category card per group -->
+
+
+ 
+
+    </div>
+
+
+
+ 
+
+
+
+
+ 
+
+    <!-- Filters Bar -->
+
+
+ 
+
+    <div class="section-header">
+
+
+ 
+
+      <h2>Transaction History</h2>
+
+
+ 
+
+    </div>
+
+
+ 
+
+    <div class="filters-bar">
+
+
+ 
+
+      <select id="filter-type">
+
+
+ 
+
+        <option value="all">All Types</option>
+
+
+ 
+
+        <option value="income">Income</option>
+
+
+ 
+
+        <option value="expense">Expense</option>
+
+
+ 
+
+        <option value="transfer">Transfer</option>
+
+
+ 
+
+      </select>
+
+
+ 
+
+      <select id="filter-category">
+
+
+ 
+
+        <!-- Filled dynamically -->
+
+
+ 
+
+      </select>
+
+
+ 
+
+      <select id="filter-account">
+
+
+ 
+
+        <!-- Filled dynamically -->
+
+
+ 
+
+      </select>
+
+
+ 
+
+    </div>
+
+
+
+ 
+
+
+
+
+ 
+
+    <!-- Bulk Actions Bar -->
+
+
+ 
+
+    <div class="bulk-actions-bar hidden" id="bulk-actions-bar" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; padding:10px 16px; background-color:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius);">
+
+
+ 
+
+      <div style="display:flex; align-items:center; gap:8px;">
+
+
+ 
+
+        <input type="checkbox" id="select-all-trans" onchange="toggleSelectAllTransactions(this.checked)" style="width: 18px; height: 18px; cursor: pointer;">
+
+
+ 
+
+        <label for="select-all-trans" style="font-size:14px; font-weight:500; cursor:pointer; user-select:none;">Select All</label>
+
+
+ 
+
+      </div>
+
+
+ 
+
+      <button class="danger" id="bulk-delete-btn" onclick="bulkDeleteTransactions()" style="padding:6px 12px; font-size:13px;" disabled>Delete Selected (0)</button>
+
+
+ 
+
+    </div>
+
+
+
+ 
+
+
+
+
+ 
+
+    <!-- Transaction List -->
+
+
+ 
+
+    <div class="transaction-list" id="trans-history-container">
+
+
+ 
+
+      <!-- Filled dynamically -->
+
+
+ 
+
+    </div>
+
+
+ 
+
+  </section>
+
+
+
+ 
+
+
+
+
+ 
+
+  <!-- MY MONEY -->
+
+
+ 
+
+  <section id="view-mymoney" class="view-section">
+
+
+ 
+
+    <!-- Summary Cards -->
+
+
+ 
+
+    <div class="grid-4">
+
+
+ 
+
+      <!-- Total Savings -->
+
+
+ 
+
+      <div class="card">
+
+
+ 
+
+        <span class="card-title">Total Savings</span>
+
+
+ 
+
+        <span class="card-value" id="money-saved-val">₹0.00</span>
+
+
+ 
+
+        <span class="card-subline" id="money-saved-sub">This month: ₹0.00 · 0% rate</span>
+
+
+ 
+
+      </div>
+
+
+ 
+
+      <!-- Invested -->
+
+
+ 
+
+      <div class="card">
+
+
+ 
+
+        <span class="card-title">Invested</span>
+
+
+ 
+
+        <span class="card-value normal-text" id="money-invested-val">₹0.00</span>
+
+
+ 
+
+        <span class="card-subline" id="money-invested-sub">0 positions</span>
+
+
+ 
+
+      </div>
+
+
+ 
+
+      <!-- Current Value -->
+
+
+ 
+
+      <div class="card">
+
+
+ 
+
+        <span class="card-title">Current Value</span>
+
+
+ 
+
+        <span class="card-value normal-text" id="money-current-val">₹0.00</span>
+
+
+ 
+
+        <span class="card-subline" id="money-gain-sub">+₹0.00 (0.00%)</span>
+
+
+ 
+
+      </div>
+
+
+ 
+
+      <!-- Net Worth -->
+
+
+ 
+
+      <div class="card">
+
+
+ 
+
+        <span class="card-title">Net Worth</span>
+
+
+ 
+
+        <span class="card-value normal-text" id="money-networth-val">₹0.00</span>
+
+
+ 
+
+        <span class="card-subline">Cash + Savings + Investments</span>
+
+
+ 
+
+      </div>
+
+
+ 
+
+    </div>
+
+
+
+ 
+
+
+
+
+ 
+
+    <!-- Accounts -->
+
+
+ 
+
+    <div class="section-header">
+
+
+ 
+
+      <h2>Accounts</h2>
+
+
+ 
+
+      <button class="ghost" id="add-account-btn">+ Add Account</button>
+
+
+ 
+
+    </div>
+
+
+ 
+
+    <div class="accounts-grid" id="accounts-container">
+
+
+ 
+
+      <!-- Filled dynamically -->
+
+
+ 
+
+    </div>
+
+
+
+ 
+
+
+
+
+ 
+
+    <!-- Savings Buckets -->
+
+
+ 
+
+    <div class="section-header">
+
+
+ 
+
+      <h2>Savings Buckets</h2>
+
+
+ 
+
+      <button class="ghost" id="add-bucket-btn">+ Add Bucket</button>
+
+
+ 
+
+    </div>
+
+
+
+ 
+
+
+
+
+ 
+
+    <div class="budget-grid" id="savings-buckets-container" style="margin-bottom: 24px;">
+
+
+ 
+
+      <!-- Filled dynamically -->
+
+
+ 
+
+    </div>
+
+
+
+ 
+
+
+
+
+ 
+
+    <!-- Investments -->
+
+
+ 
+
+    <div class="section-header">
+
+
+ 
+
+      <h2>Investments</h2>
+
+
+ 
+
+      <button class="ghost" id="add-investment-btn">+ Add Investment</button>
+
+
+ 
+
+    </div>
+
+
+ 
+
+     <div class="investments-grid" id="investments-container">
+
+
+ 
+
+      <!-- Filled dynamically -->
+
+
+ 
+
+    </div>
+
+
+
+
+
+ 
+
+    <div class="section-header">
+
+
+ 
+
+      <h2>Monthly Savings</h2>
+
+
+ 
+
+    </div>
+
+
+ 
+
+    <div class="savings-history-list" id="savings-history-container" style="margin-bottom: 24px;">
+
+
+ 
+
+      <!-- Filled dynamically -->
+
+
+ 
+
+    </div>
+
+
+ 
+
+  </section>
+
+
+
+
+
+ 
+
+  <!-- CREDIT & DEBT -->
+
+
+ 
+
+  <section id="view-creditdebt" class="view-section">
+
+
+ 
+
+    <!-- Credit Card Overview -->
+
+
+ 
+
+    <div class="section-header" style="margin-top: 0;">
+
+
+ 
+
+      <h2>Credit Card Overview</h2>
+
+
+ 
+
+    </div>
+
+
+ 
+
+    <div class="accounts-grid" id="credit-card-overview-container" style="margin-bottom: 24px;">
+
+
+ 
+
+      <!-- Filled dynamically -->
+
+
+ 
+
+    </div>
+
+
+ 
+
+    <!-- Summary Cards -->
+
+
+ 
+
+    <div class="grid-2" style="margin-bottom: 20px;">
+
+
+ 
+
+      <div class="card">
+
+
+ 
+
+        <span class="card-title">Total Credit Card Outstanding</span>
+
+
+ 
+
+        <span class="card-value expense-text" id="ccd-total-outstanding">₹0.00</span>
+
+
+ 
+
+        <span class="card-subline">Across all credit card accounts</span>
+
+
+ 
+
+      </div>
+
+
+ 
+
+      <div class="card">
+
+
+ 
+
+        <span class="card-title">Credit Card Bill Bucket</span>
+
+
+ 
+
+        <span class="card-value income-text" id="ccd-bucket-balance">₹0.00</span>
+
+
+ 
+
+        <span class="card-subline" id="ccd-bucket-sub">From "Credit Card Bill" bucket</span>
+
+
+ 
+
+      </div>
+
+
+ 
+
+    </div>
+
+
+ 
+
+    <!-- Difference / Status Card (primary metric) -->
+
+
+ 
+
+    <div class="card" id="ccd-gap-card" style="padding: 24px; margin-bottom: 8px; border-left: 4px solid var(--warn); display: flex; flex-direction: column; gap: 6px;">
+
+
+ 
+
+      <span class="card-title" id="ccd-gap-title">Credit Card Gap</span>
+
+
+ 
+
+      <span class="card-value" id="ccd-gap-value" style="font-size: 32px;">₹0.00</span>
+
+
+ 
+
+    </div>
+
+
+ 
+
+    <p id="ccd-recommendation" style="font-size: 14px; color: var(--text-muted); margin: 0 0 24px 4px;"></p>
+
+
+ 
+
+    <!-- Credit Utilization + Credit Score -->
+
+
+ 
+
+    <div class="grid-2" style="margin-bottom: 24px;">
+
+
+ 
+
+      <div class="card" style="padding: 20px;">
+
+
+ 
+
+        <span class="card-title">Credit Utilization</span>
+
+
+ 
+
+        <div style="display: flex; justify-content: space-between; align-items: baseline; margin: 10px 0 8px;">
+
+
+ 
+
+          <span id="ccd-utilization-label" style="font-size: 16px; font-weight: 600;">₹0.00 / ₹0.00</span>
+
+
+ 
+
+          <span id="ccd-utilization-pct" class="card-value" style="font-size: 22px;">0%</span>
+
+
+ 
+
+        </div>
+
+
+ 
+
+        <div class="progress-bar-container">
+
+
+ 
+
+          <div class="progress-bar-fill progress-normal" id="ccd-utilization-fill" style="width: 0%;"></div>
+
+
+ 
+
+        </div>
+
+
+ 
+
+      </div>
+
+
+ 
+
+      <div class="card" style="padding: 20px; display: flex; justify-content: space-between; align-items: flex-start;">
+
+
+ 
+
+        <div>
+
+
+ 
+
+          <span class="card-title">Credit Score</span>
+
+
+ 
+
+          <div class="card-value" id="ccd-score-val" style="margin-top: 4px;">—</div>
+
+
+ 
+
+          <span class="card-subline">Last Updated: <span id="ccd-score-sub">Not set</span></span>
+
+
+ 
+
+        </div>
+
+
+ 
+
+        <button class="ghost" id="edit-credit-score-btn" style="padding: 4px 10px; font-size: 12px;">Edit</button>
+
+
+ 
+
+      </div>
+
+
+ 
+
+    </div>
+
+
+ 
+
+    <!-- Credit Score History -->
+
+
+ 
+
+    <div class="section-header">
+
+
+ 
+
+      <h2>Credit Score History</h2>
+
+
+ 
+
+    </div>
+
+
+ 
+
+    <div class="card" style="padding: 20px; margin-bottom: 24px;">
+
+
+ 
+
+      <div id="credit-score-chart-container" style="width: 100%; height: 220px;">
+
+
+ 
+
+        <!-- Rendered dynamically (SVG) -->
+
+
+ 
+
+      </div>
+
+
+ 
+
+    </div>
+
+
+ 
+
+    <!-- Debts & EMIs (moved from My Money) -->
+
+
+ 
+
+    <div class="section-header">
+
+
+ 
+
+      <h2>Debts & EMIs <span id="debts-active-count" style="font-size: 12px; font-weight: 500; color: var(--text-muted); margin-left: 8px;">0 active</span></h2>
+
+
+ 
+
+      <button class="ghost" id="add-debt-btn">+ Add Debt</button>
+
+
+ 
+
+    </div>
+
+
+ 
+
+    <div class="budget-grid" id="debts-container" style="margin-bottom: 24px;">
+
+
+ 
+
+      <!-- Filled dynamically -->
+
+
+ 
+
+    </div>
+
+
+ 
+
+  </section>
+
+
+
+
+
+ 
+
+  <!-- PLANNING -->
+
+
+ 
+
+  <section id="view-planning" class="view-section">
+
+
+ 
+
+    <!-- Month Picker -->
+
+
+ 
+
+    <div class="month-picker">
+
+
+ 
+
+      <button class="icon-btn prev-month-btn" title="Previous Month">&lsaquo;</button>
+
+
+ 
+
+      <span class="month-label current-month-label">June 2026</span>
+
+
+ 
+
+      <button class="icon-btn next-month-btn" title="Next Month">&rsaquo;</button>
+
+
+ 
+
+    </div>
+
+
+
+ 
+
+
+
+
+ 
+
+    <!-- Planning Sub-Navigation Tabs -->
+
+
+ 
+
+    <div class="tabs-nav" id="planning-sub-nav" style="margin-bottom: 24px; border-bottom: 1px solid var(--border); padding-bottom: 12px; gap: 8px;">
+
+
+ 
+
+      <button class="tab-btn active" data-subview="forecast">Forecast</button>
+
+
+ 
+
+      <button class="tab-btn" data-subview="planner">Purchase Planner</button>
+
+
+ 
+
+      <button class="tab-btn" data-subview="reports">Monthly Reports</button>
+
+
+ 
+
+      <button class="tab-btn" data-subview="projections">Net Worth Projections</button>
+
+
+ 
+
+    </div>
+
+
+
+ 
+
+
+
+
+ 
+
+    <!-- Forecast Sub-view -->
+
+
+ 
+
+    <div id="planning-forecast-subview">
+
+
+ 
+
+      <!-- Controls / Segmented -->
+
+
+ 
+
+      <div class="section-header" style="margin-top: 0;">
+
+
+ 
+
+        <h2>Cash Flow Forecast (12 Months)</h2>
+
+
+ 
+
+        <div class="segmented-control" id="planning-view-segmented" style="max-width: 250px;">
+
+
+ 
+
+          <button class="segment-btn active" data-type="list">List View</button>
+
+
+ 
+
+          <button class="segment-btn" data-type="graph">Graph View</button>
+
+
+ 
+
+        </div>
+
+
+ 
+
+      </div>
+
+
+
+ 
+
+
+
+
+ 
+
+      <!-- Forecast List View -->
+
+
+ 
+
+      <div id="planning-list-view" class="card" style="padding: 0; overflow-x: auto; margin-bottom: 24px;">
+
+
+ 
+
+        <table class="planning-table" style="width: 100%; border-collapse: collapse; text-align: left; font-size: 14px;">
+
+
+ 
+
+          <thead>
+
+
+ 
+
+            <tr style="border-bottom: 1px solid var(--border); background-color: var(--surface-2); font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">
+
+
+ 
+
+              <th style="padding: 12px 16px; font-weight: 600;">Month</th>
+
+
+ 
+
+              <th style="padding: 12px 16px; font-weight: 600; text-align: right;">Expected Income</th>
+
+
+ 
+
+              <th style="padding: 12px 16px; font-weight: 600; text-align: right;">Expected Expenses</th>
+
+
+ 
+
+              <th style="padding: 12px 16px; font-weight: 600; text-align: right;">Expected Savings</th>
+
+
+ 
+
+              <th style="padding: 12px 16px; font-weight: 600; text-align: right;">Net Cash Flow</th>
+
+
+ 
+
+              <th style="padding: 12px 16px; font-weight: 600;">Milestones / Ends</th>
+
+
+ 
+
+            </tr>
+
+
+ 
+
+          </thead>
+
+
+ 
+
+          <tbody id="planning-list-body">
+
+
+ 
+
+            <!-- Filled dynamically -->
+
+
+ 
+
+          </tbody>
+
+
+ 
+
+        </table>
+
+
+ 
+
+      </div>
+
+
+
+ 
+
+
+
+
+ 
+
+      <!-- Forecast Graph View -->
+
+
+ 
+
+      <div id="planning-graph-view" class="card hidden" style="padding: 20px; margin-bottom: 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 350px;">
+
+
+ 
+
+        <div id="planning-chart-container" style="width: 100%; height: 300px;">
+
+
+ 
+
+          <!-- SVG Chart filled dynamically -->
+
+
+ 
+
+        </div>
+
+
+ 
+
+        <div style="display: flex; gap: 24px; font-size: 12px; margin-top: 16px;">
+
+
+ 
+
+          <div style="display: flex; align-items: center; gap: 6px;">
+
+
+ 
+
+            <span style="display: inline-block; width: 12px; height: 12px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 3px;"></span>
+
+
+ 
+
+            <span>Expected Income</span>
+
+
+ 
+
+          </div>
+
+
+ 
+
+          <div style="display: flex; align-items: center; gap: 6px;">
+
+
+ 
+
+            <span style="display: inline-block; width: 12px; height: 12px; background: linear-gradient(135deg, #ef4444, #dc2626); border-radius: 3px;"></span>
+
+
+ 
+
+            <span>Expected Expenses</span>
+
+
+ 
+
+          </div>
+
+
+ 
+
+          <div style="display: flex; align-items: center; gap: 6px;">
+
+
+ 
+
+            <span style="display: inline-block; width: 12px; height: 12px; background: linear-gradient(135deg, #3b82f6, #2563eb); border-radius: 3px;"></span>
+
+
+ 
+
+            <span>Expected Savings</span>
+
+
+ 
+
+          </div>
+
+
+ 
+
+        </div>
+
+
+ 
+
+      </div>
+
+
+ 
+
+    </div>
+
+
+
+ 
+
+
+
+
+ 
+
+    <!-- Purchase Planner Sub-view -->
+
+
+ 
+
+    <div id="planning-planner-subview" class="hidden">
+
+
+ 
+
+      <div class="card" style="padding: 24px; margin-bottom: 24px;">
+
+
+ 
+
+        <h3 style="margin-top: 0; margin-bottom: 16px; font-size: 18px;">Purchase Affordability Planner</h3>
+
+
+ 
+
+        <form id="form-purchase-planner" style="display: flex; flex-direction: column; gap: 16px;">
+
+
+ 
+
+          <div class="form-row-2">
+
+
+ 
+
+            <div class="form-group">
+
+
+ 
+
+              <label for="planner-purchase-name">What do you want to buy?</label>
+
+
+ 
+
+              <input type="text" id="planner-purchase-name" placeholder="e.g. iPhone 17 Pro, Trek Road Bike" required>
+
+
+ 
+
+            </div>
+
+
+ 
+
+            <div class="form-group">
+
+
+ 
+
+              <label for="planner-purchase-price">Price (₹)</label>
+
+
+ 
+
+              <input type="number" id="planner-purchase-price" step="0.01" min="1" placeholder="0.00" required>
+
+
+ 
+
+            </div>
+
+
+ 
+
+          </div>
+
+
+ 
+
+          <div style="display: flex; justify-content: flex-end;">
+
+
+ 
+
+            <button type="submit" class="primary" style="padding: 10px 24px;">Analyze Affordability</button>
+
+
+ 
+
+          </div>
+
+
+ 
+
+        </form>
+
+
+ 
+
+      </div>
+
+
+
+ 
+
+
+
+
+ 
+
+      <!-- Planner Results Pane -->
+
+
+ 
+
+      <div id="planner-results-pane" class="card hidden" style="padding: 24px; margin-bottom: 24px;">
+
+
+ 
+
+        <!-- Filled dynamically -->
+
+
+ 
+
+      </div>
+
+
+ 
+
+    </div>
+
+
+
+ 
+
+
+
+
+ 
+
+    <!-- Monthly Reports Sub-view -->
+
+
+ 
+
+    <div id="planning-reports-subview" class="hidden">
+
+
+ 
+
+      <div class="card" style="padding: 20px; margin-bottom: 24px; display: flex; flex-direction: row; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap;">
+
+
+ 
+
+        <div>
+
+
+ 
+
+          <h3 style="margin: 0; font-size: 18px;">Completed Months Performance Reports</h3>
+
+
+ 
+
+          <p style="margin: 4px 0 0 0; font-size: 13px; color: var(--text-muted);">Select a completed previous month to review budget adherence, net savings, and key highlights.</p>
+
+
+ 
+
+        </div>
+
+
+ 
+
+        <div class="form-group" style="min-width: 200px;">
+
+
+ 
+
+          <select id="reports-month-select" style="width: 100%;"></select>
+
+
+ 
+
+        </div>
+
+
+ 
+
+      </div>
+
+
+
+ 
+
+
+
+
+ 
+
+      <!-- Report Sheet Card -->
+
+
+ 
+
+      <div id="reports-sheet-card" class="card hidden" style="padding: 24px; margin-bottom: 24px;">
+
+
+ 
+
+        <!-- Filled dynamically -->
+
+
+ 
+
+      </div>
+
+
+ 
+
+    </div>
+
+
+
+ 
+
+
+
+
+ 
+
+    <!-- Net Worth Projections Sub-view -->
+
+
+ 
+
+    <div id="planning-projections-subview" class="hidden">
+
+
+ 
+
+      <!-- Controls -->
+
+
+ 
+
+      <div class="section-header" style="margin-top: 0;">
+
+
+ 
+
+        <h2>Net Worth Projections</h2>
+
+
+ 
+
+        <div class="segmented-control" id="projections-period-segmented" style="max-width: 300px;">
+
+
+ 
+
+          <button class="segment-btn active" data-months="12">1 Year</button>
+
+
+ 
+
+          <button class="segment-btn" data-months="36">3 Years</button>
+
+
+ 
+
+          <button class="segment-btn" data-months="60">5 Years</button>
+
+
+ 
+
+        </div>
+
+
+ 
+
+      </div>
+
+
+
+ 
+
+
+
+
+ 
+
+      <!-- Projection Graph Card -->
+
+
+ 
+
+      <div class="card" style="padding: 24px; margin-bottom: 24px; display: flex; flex-direction: column; min-height: 350px;">
+
+
+ 
+
+        <div id="projections-chart-container" style="width: 100%; height: 300px;">
+
+
+ 
+
+          <!-- SVG Multi-series Chart filled dynamically -->
+
+
+ 
+
+        </div>
+
+
+ 
+
+        <div style="display: flex; gap: 24px; font-size: 12px; margin-top: 16px; justify-content: center; flex-wrap: wrap;">
+
+
+ 
+
+          <div style="display: flex; align-items: center; gap: 6px;">
+
+
+ 
+
+            <span style="display: inline-block; width: 12px; height: 12px; background: #10b981; border-radius: 3px;"></span>
+
+
+ 
+
+            <span>Projected Cash</span>
+
+
+ 
+
+          </div>
+
+
+ 
+
+          <div style="display: flex; align-items: center; gap: 6px;">
+
+
+ 
+
+            <span style="display: inline-block; width: 12px; height: 12px; background: #eab308; border-radius: 3px;"></span>
+
+
+ 
+
+            <span>Projected Investments</span>
+
+
+ 
+
+          </div>
+
+
+ 
+
+          <div style="display: flex; align-items: center; gap: 6px;">
+
+
+ 
+
+            <span style="display: inline-block; width: 12px; height: 12px; background: #3b82f6; border-radius: 3px;"></span>
+
+
+ 
+
+            <span>Projected Net Worth</span>
+
+
+ 
+
+          </div>
+
+
+ 
+
+          <div style="display: flex; align-items: center; gap: 6px;">
+
+
+ 
+
+            <span style="display: inline-block; width: 12px; height: 12px; background: #ef4444; border-radius: 3px;"></span>
+
+
+ 
+
+            <span>Outstanding Debt</span>
+
+
+ 
+
+          </div>
+
+
+ 
+
+        </div>
+
+
+ 
+
+      </div>
+
+
+
+ 
+
+
+
+
+ 
+
+      <div class="grid-2">
+
+
+ 
+
+        <!-- Future Milestones Timeline -->
+
+
+ 
+
+        <div class="card" style="padding: 20px;">
+
+
+ 
+
+          <h4 style="margin-top: 0; margin-bottom: 16px; font-size: 16px;">Forecasted Timeline Milestones</h4>
+
+
+ 
+
+          <div id="projections-milestones-timeline" style="display: flex; flex-direction: column; gap: 10px;">
+
+
+ 
+
+            <!-- Filled dynamically -->
+
+
+ 
+
+          </div>
+
+
+ 
+
+        </div>
+
+
+
+ 
+
+
+
+
+ 
+
+        <!-- Metric Growth Forecast Summary -->
+
+
+ 
+
+        <div class="card" style="padding: 20px;">
+
+
+ 
+
+          <h4 style="margin-top: 0; margin-bottom: 16px; font-size: 16px;">Ending Targets Summary</h4>
+
+
+ 
+
+          <div id="projections-summary-sheet" style="display: flex; flex-direction: column; gap: 10px;">
+
+
+ 
+
+            <!-- Filled dynamically -->
+
+
+ 
+
+          </div>
+
+
+ 
+
+        </div>
+
+
+ 
+
+      </div>
+
+
+
+ 
+
+
+
+
+ 
+
+      <!-- Projection Table -->
+
+
+ 
+
+      <h3 style="margin-top: 24px; margin-bottom: 12px; font-size: 18px;">Month-by-Month Projection Data</h3>
+
+
+ 
+
+      <div class="card" style="padding: 0; overflow-x: auto; margin-bottom: 24px;">
+
+
+ 
+
+        <table class="planning-table" style="width: 100%; border-collapse: collapse; text-align: left; font-size: 14px;">
+
+
+ 
+
+          <thead>
+
+
+ 
+
+            <tr style="border-bottom: 1px solid var(--border); background-color: var(--surface-2); font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">
+
+
+ 
+
+              <th style="padding: 12px 16px; font-weight: 600;">Month</th>
+
+
+ 
+
+              <th style="padding: 12px 16px; font-weight: 600; text-align: right;">Projected Cash</th>
+
+
+ 
+
+              <th style="padding: 12px 16px; font-weight: 600; text-align: right;">Projected Investments</th>
+
+
+ 
+
+              <th style="padding: 12px 16px; font-weight: 600; text-align: right;">Outstanding Debt</th>
+
+
+ 
+
+              <th style="padding: 12px 16px; font-weight: 600; text-align: right;">Projected Net Worth</th>
+
+
+ 
+
+            </tr>
+
+
+ 
+
+          </thead>
+
+
+ 
+
+          <tbody id="projections-list-body">
+
+
+ 
+
+            <!-- Filled dynamically -->
+
+
+ 
+
+          </tbody>
+
+
+ 
+
+        </table>
+
+
+ 
+
+      </div>
+
+
+ 
+
+    </div>
+
+
+ 
+
+  </section>
+
+
+
+ 
+
+
+
+
+ 
+
+  <!-- BUDGETS -->
+
+
+ 
+
+  <section id="view-budgets" class="view-section">
+
+
+ 
+
+    <!-- Month Picker -->
+
+
+ 
+
+    <div class="month-picker">
+
+
+ 
+
+      <button class="icon-btn prev-month-btn" title="Previous Month">&lsaquo;</button>
+
+
+ 
+
+      <span class="month-label current-month-label">June 2026</span>
+
+
+ 
+
+      <button class="icon-btn next-month-btn" title="Next Month">&rsaquo;</button>
+
+
+ 
+
+    </div>
+
+
+
+
+
+ 
+
+    <!-- Budget Group Summary Cards -->
+
+
+ 
+
+    <div class="budget-group-summary-cards" id="budget-group-summary-cards">
+
+
+ 
+
+      <!-- Filled dynamically -->
+
+
+ 
+
+    </div>
+
+
+
+
+
+ 
+
+    <!-- Budget Summary Bar -->
+
+
+ 
+
+    <div class="budget-summary-bar hidden" id="budget-summary-bar">
+
+
+ 
+
+      <div class="budget-summary-left">
+
+
+ 
+
+        <span class="card-subline">TOTAL BUDGETED SPEND</span>
+
+
+ 
+
+        <span class="budget-summary-total" id="budget-sum-spent-limit">₹0.00 / ₹0.00</span>
+
+
+ 
+
+      </div>
+
+
+ 
+
+      <div>
+
+
+ 
+
+        <span class="card-value" id="budget-sum-percent">0%</span>
+
+
+ 
+
+      </div>
+
+
+ 
+
+      <div>
+
+
+ 
+
+        <span class="card-subline" id="budget-sum-remaining-label">REMAINING</span>
+
+
+ 
+
+        <div class="card-value" id="budget-sum-remaining-val">₹0.00</div>
+
+
+ 
+
+      </div>
+
+
+ 
+
+    </div>
+
+
+
+ 
+
+
+
+
+ 
+
+    <!-- Add Budget Actions -->
+
+
+ 
+
+    <div class="section-header" style="justify-content: flex-end; margin-top: 0; margin-bottom: 20px;">
+
+
+ 
+
+      <button class="primary" id="add-budget-btn">+ Add Budget</button>
+
+
+ 
+
+    </div>
+
+
+
+ 
+
+
+
+
+ 
+
+    <!-- Budget Groups (hierarchical) -->
+
+
+ 
+
+    <div class="budget-groups-container" id="budgets-container-grid">
+
+
+ 
+
+      <!-- Filled dynamically -->
+
+
+ 
+
+    </div>
+
+
+
+ 
+
+
+
+
+ 
+
+    <!-- Empty State -->
+
+
+ 
+
+    <div class="empty-state hidden" id="budgets-empty-state">
+
+
+ 
+
+      <p>No budgets configured for this month.</p>
+
+
+ 
+
+      <div style="display: flex; gap: 12px; margin-top: 8px;">
+
+
+ 
+
+        <button class="primary" id="budgets-empty-add-btn">+ Add a Budget</button>
+
+
+ 
+
+        <button class="ghost hidden" id="budgets-copy-prev-btn">Copy budgets from previous month</button>
+
+
+ 
+
+      </div>
+
+
+ 
+
+    </div>
+
+
+ 
+
+  </section>
+
+
+
+ 
+
+
+
+
+ 
+
+  <!-- CATEGORIES -->
+
+
+ 
+
+  <section id="view-categories" class="view-section">
+
+
+ 
+
+    <div class="categories-container">
+
+
+ 
+
+     
+
+
+ 
+
+      <!-- Expense Categories -->
+
+
+ 
+
+      <div class="categories-section">
+
+
+ 
+
+        <div class="section-header" style="margin-top: 0;">
+
+
+ 
+
+          <h2>Expense Categories</h2>
+
+
+ 
+
+          <button class="ghost" id="add-category-expense-btn">+ Add</button>
+
+
+ 
+
+        </div>
+
+
+ 
+
+        <div id="expense-categories-list" style="display: flex; flex-direction: column; gap: 8px;">
+
+
+ 
+
+          <!-- Filled dynamically -->
+
+
+ 
+
+        </div>
+
+
+ 
+
+      </div>
+
+
+
+ 
+
+
+
+
+ 
+
+      <!-- Income Categories -->
+
+
+ 
+
+      <div class="categories-section">
+
+
+ 
+
+        <div class="section-header" style="margin-top: 0;">
+
+
+ 
+
+          <h2>Income Categories</h2>
+
+
+ 
+
+          <button class="ghost" id="add-category-income-btn">+ Add</button>
+
+
+ 
+
+        </div>
+
+
+ 
+
+        <div id="income-categories-list" style="display: flex; flex-direction: column; gap: 8px;">
+
+
+ 
+
+          <!-- Filled dynamically -->
+
+
+ 
+
+        </div>
+
+
+ 
+
+      </div>
+
+
+
+ 
+
+
+
+
+ 
+
+    </div>
+
+
+ 
+
+  </section>
+
+
+
+ 
+
+
+
+
+ 
+
+  <!-- FAB -->
+
+
+ 
+
+  <button class="fab" id="fab-add-trans" title="Add Transaction">+</button>
+
+
+
+ 
+
+
+
+
+ 
+
+  <!-- MODALS -->
+
+
+
+ 
+
+
+
+
+ 
+
+  <!-- 1. TRANSACTION MODAL -->
+
+
+ 
+
+  <div class="modal-overlay" id="modal-transaction">
+
+
+ 
+
+    <div class="modal-box">
+
+
+ 
+
+      <div class="modal-title" id="transaction-modal-title">Add Transaction</div>
+
+
+ 
+
+     
+
+
+ 
+
+      <!-- Segmented Control -->
+
+
+ 
+
+      <div class="segmented-control" id="trans-type-segmented">
+
+
+ 
+
+        <button class="segment-btn active" data-type="expense">
+
+
+ 
+
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+
+
+ 
+
+            <line x1="12" y1="19" x2="12" y2="5"></line>
+
+
+ 
+
+            <polyline points="5 12 12 5 19 12"></polyline>
+
+
+ 
+
+          </svg>
+
+
+ 
+
+          Expense
+
+
+ 
+
+        </button>
+
+
+ 
+
+        <button class="segment-btn" data-type="income">
+
+
+ 
+
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+
+
+ 
+
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+
+
+ 
+
+            <polyline points="19 12 12 19 5 12"></polyline>
+
+
+ 
+
+          </svg>
+
+
+ 
+
+          Income
+
+
+ 
+
+        </button>
+
+
+ 
+
+        <button class="segment-btn" data-type="transfer">
+
+
+ 
+
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+
+
+ 
+
+            <line x1="5" y1="9" x2="19" y2="9"></line>
+
+
+ 
+
+            <polyline points="15 5 19 9 15 13"></polyline>
+
+
+ 
+
+            <line x1="19" y1="15" x2="5" y2="15"></line>
+
+
+ 
+
+            <polyline points="9 19 5 15 9 11"></polyline>
+
+
+ 
+
+          </svg>
+
+
+ 
+
+          Transfer
+
+
+ 
+
+        </button>
+
+
+ 
+
+      </div>
+
+
+
+ 
+
+
+
+
+ 
+
+      <form id="form-transaction">
+
+
+ 
+
+        <!-- Hidden input for ID (in case of edit) -->
+
+
+ 
+
+        <input type="hidden" id="trans-id">
+
+
+
+ 
+
+
+
+
+ 
+
+        <!-- Amount Row -->
+
+
+ 
+
+        <div class="amount-input-row">
+
+
+ 
+
+          <span class="amount-prefix">₹</span>
+
+
+ 
+
+          <input type="number" id="trans-amount" step="0.01" min="0.01" placeholder="0.00" required>
+
+
+ 
+
+        </div>
+
+
+
+ 
+
+
+
+
+ 
+
+        <div class="form-grid">
+
+
+ 
+
+         
+
+
+ 
+
+          <!-- Income / Expense Fields -->
+
+
+ 
+
+          <div class="form-group" id="trans-account-group">
+
+
+ 
+
+            <label id="trans-account-label" for="trans-account">Debit from account</label>
+
+
+ 
+
+            <select id="trans-account" required></select>
+
+
+ 
+
+          </div>
+
+
+
+ 
+
+
+
+
+ 
+
+          <div class="form-group" id="trans-category-group">
+
+
+ 
+
+            <label for="trans-category">Category</label>
+
+
+ 
+
+            <select id="trans-category" required></select>
+
+
+ 
+
+          </div>
+
+
+
+ 
+
+
+
+
+ 
+
+          <!-- Special Investment field for expense only -->
+
+
+ 
+
+          <div class="form-group hidden" id="trans-investment-group">
+
+
+ 
+
+            <label for="trans-investment">Apply to investment</label>
+
+
+ 
+
+            <select id="trans-investment"></select>
+
+
+ 
+
+          </div>
+
+
+
+ 
+
+
+
+
+ 
+
+          <!-- Special Debt field for expense only -->
+
+
+ 
+
+          <div class="form-group hidden" id="trans-debt-group">
+
+
+ 
+
+            <label for="trans-debt">Link to Debt (Amortize outstanding)</label>
+
+
+ 
+
+            <select id="trans-debt"></select>
+
+
+ 
+
+          </div>
+
+
+
+ 
+
+
+
+
+ 
+
+          <!-- Transfer Fields -->
+
+
+ 
+
+          <div class="form-row-2 hidden" id="trans-transfer-group">
+
+
+ 
+
+            <div class="form-group">
+
+
+ 
+
+              <label for="trans-from-account">From Account</label>
+
+
+ 
+
+              <select id="trans-from-account"></select>
+
+
+ 
+
+            </div>
+
+
+ 
+
+            <div class="form-group">
+
+
+ 
+
+              <label for="trans-to-account">To Account</label>
+
+
+ 
+
+              <select id="trans-to-account"></select>
+
+
+ 
+
+            </div>
+
+
+ 
+
+          </div>
+
+
+
+ 
+
+
+
+
+ 
+
+          <!-- Bottom Grid -->
+
+
+ 
+
+          <div class="form-row-2">
+
+
+ 
+
+            <div class="form-group">
+
+
+ 
+
+              <label for="trans-date">Date</label>
+
+
+ 
+
+              <input type="date" id="trans-date" required>
+
+
+ 
+
+            </div>
+
+
+ 
+
+            <div class="form-group">
+
+
+ 
+
+              <label for="trans-note">Note (Optional)</label>
+
+
+ 
+
+              <input type="text" id="trans-note" placeholder="e.g. Groceries">
+
+
+ 
+
+            </div>
+
+
+ 
+
+          </div>
+
+
+
+ 
+
+
+
+
+ 
+
+        </div>
+
+
+
+ 
+
+
+
+
+ 
+
+        <div class="modal-footer">
+
+
+ 
+
+          <button type="button" class="ghost modal-close-btn">Cancel</button>
+
+
+ 
+
+          <button type="submit" class="primary">Save</button>
+
+
+ 
+
+        </div>
+
+
+ 
+
+      </form>
+
+
+ 
+
+    </div>
+
+
+ 
+
+  </div>
+
+
+
+ 
+
+
+
+
+ 
+
+  <!-- 2. RECURRING MODAL -->
+
+
+ 
+
+  <div class="modal-overlay" id="modal-recurring">
+
+
+ 
+
+    <div class="modal-box">
+
+
+ 
+
+      <div class="modal-title" id="recurring-modal-title">Add Recurring Transaction</div>
+
+
+ 
+
+     
+
+
+ 
+
+      <!-- Segmented Control -->
+
+
+ 
+
+      <div class="segmented-control" id="rec-type-segmented">
+
+
+ 
+
+        <button class="segment-btn active" data-type="expense">
+
+
+ 
+
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+
+
+ 
+
+            <line x1="12" y1="19" x2="12" y2="5"></line>
+
+
+ 
+
+            <polyline points="5 12 12 5 19 12"></polyline>
+
+
+ 
+
+          </svg>
+
+
+ 
+
+          Expense
+
+
+ 
+
+        </button>
+
+
+ 
+
+        <button class="segment-btn" data-type="income">
+
+
+ 
+
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+
+
+ 
+
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+
+
+ 
+
+            <polyline points="19 12 12 19 5 12"></polyline>
+
+
+ 
+
+          </svg>
+
+
+ 
+
+          Income
+
+
+ 
+
+        </button>
+
+
+ 
+
+        <button class="segment-btn" data-type="transfer">
+
+
+ 
+
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+
+
+ 
+
+            <line x1="5" y1="9" x2="19" y2="9"></line>
+
+
+ 
+
+            <polyline points="15 5 19 9 15 13"></polyline>
+
+
+ 
+
+            <line x1="19" y1="15" x2="5" y2="15"></line>
+
+
+ 
+
+            <polyline points="9 19 5 15 9 11"></polyline>
+
+
+ 
+
+          </svg>
+
+
+ 
+
+          Transfer
+
+
+ 
+
+        </button>
+
+
+ 
+
+      </div>
+
+
+
+ 
+
+
+
+
+ 
+
+      <form id="form-recurring">
+
+
+ 
+
+        <input type="hidden" id="rec-id">
+
+
+
+ 
+
+
+
+
+ 
+
+        <div class="form-grid" style="margin-top: 12px;">
+
+
+ 
+
+         
+
+
+ 
+
+          <div class="form-group">
+
+
+ 
+
+            <label for="rec-name">Rule Name</label>
+
+
+ 
+
+            <input type="text" id="rec-name" placeholder="e.g. Netflix, HDFC Equity SIP" required>
+
+
+ 
+
+          </div>
+
+
+
+ 
+
+
+
+
+ 
+
+          <!-- Amount Row -->
+
+
+ 
+
+          <div class="amount-input-row">
+
+
+ 
+
+            <span class="amount-prefix">₹</span>
+
+
+ 
+
+            <input type="number" id="rec-amount" step="0.01" min="0.01" placeholder="0.00" required>
+
+
+ 
+
+          </div>
+
+
+
+ 
+
+
+
+
+ 
+
+          <!-- Income / Expense Fields -->
+
+
+ 
+
+          <div class="form-group" id="rec-account-group">
+
+
+ 
+
+            <label id="rec-account-label" for="rec-account">Debit from account</label>
+
+
+ 
+
+            <select id="rec-account" required></select>
+
+
+ 
+
+          </div>
+
+
+
+ 
+
+
+
+
+ 
+
+          <div class="form-group" id="rec-category-group">
+
+
+ 
+
+            <label for="rec-category">Category</label>
+
+
+ 
+
+            <select id="rec-category" required></select>
+
+
+ 
+
+          </div>
+
+
+
+ 
+
+
+
+
+ 
+
+          <!-- Special Investment field for expense only -->
+
+
+ 
+
+          <div class="form-group hidden" id="rec-investment-group">
+
+
+ 
+
+            <label for="rec-investment">Apply to investment</label>
+
+
+ 
+
+            <select id="rec-investment"></select>
+
+
+ 
+
+          </div>
+
+
+
+ 
+
+
+
+
+ 
+
+          <!-- Special Debt field for expense only -->
+
+
+ 
+
+          <div class="form-group hidden" id="rec-debt-group">
+
+
+ 
+
+            <label for="rec-debt">Link to Debt (Amortize outstanding)</label>
+
+
+ 
+
+            <select id="rec-debt"></select>
+
+
+ 
+
+          </div>
+
+
+
+ 
+
+
+
+
+ 
+
+          <!-- Transfer Fields -->
+
+
+ 
+
+          <div class="form-row-2 hidden" id="rec-transfer-group">
+
+
+ 
+
+            <div class="form-group">
+
+
+ 
+
+              <label for="rec-from-account">From Account</label>
+
+
+ 
+
+              <select id="rec-from-account"></select>
+
+
+ 
+
+            </div>
+
+
+ 
+
+            <div class="form-group">
+
+
+ 
+
+              <label for="rec-to-account">To Account</label>
+
+
+ 
+
+              <select id="rec-to-account"></select>
+
+
+ 
+
+            </div>
+
+
+ 
+
+          </div>
+
+
+
+ 
+
+
+
+
+ 
+
+          <!-- Frequency settings -->
+
+
+ 
+
+          <div class="form-row-2">
+
+
+ 
+
+            <div class="form-group">
+
+
+ 
+
+              <label for="rec-frequency">Frequency</label>
+
+
+ 
+
+              <select id="rec-frequency" required>
+
+
+ 
+
+                <option value="monthly">Monthly</option>
+
+
+ 
+
+                <option value="yearly">Yearly</option>
+
+
+ 
+
+              </select>
+
+
+ 
+
+            </div>
+
+
+ 
+
+            <div class="form-group">
+
+
+ 
+
+              <label for="rec-start-date">Start Date</label>
+
+
+ 
+
+              <input type="date" id="rec-start-date" required>
+
+
+ 
+
+            </div>
+
+
+ 
+
+          </div>
+
+
+
+ 
+
+
+
+
+ 
+
+          <div class="form-row-2">
+
+
+ 
+
+            <div class="form-group">
+
+
+ 
+
+              <label for="rec-end-date">End Date (Optional)</label>
+
+
+ 
+
+              <input type="date" id="rec-end-date">
+
+
+ 
+
+            </div>
+
+
+ 
+
+            <div class="form-group">
+
+
+ 
+
+              <label for="rec-note">Note (Optional)</label>
+
+
+ 
+
+              <input type="text" id="rec-note" placeholder="Note">
+
+
+ 
+
+            </div>
+
+
+ 
+
+          </div>
+
+
+
+ 
+
+
+
+
+ 
+
+        </div>
+
+
+
+ 
+
+
+
+
+ 
+
+        <div class="modal-footer">
+
+
+ 
+
+          <button type="button" class="ghost modal-close-btn">Cancel</button>
+
+
+ 
+
+          <button type="submit" class="primary">Save</button>
+
+
+ 
+
+        </div>
+
+
+ 
+
+      </form>
+
+
+ 
+
+    </div>
+
+
+ 
+
+  </div>
+
+
+
+ 
+
+
+
+
+ 
+
+  <!-- 3. ACCOUNT MODAL -->
+
+
+ 
+
+  <div class="modal-overlay" id="modal-account">
+
+
+ 
+
+    <div class="modal-box">
+
+
+ 
+
+      <div class="modal-title" id="account-modal-title">Add Account</div>
+
+
+ 
+
+      <form id="form-account">
+
+
+ 
+
+        <input type="hidden" id="account-id">
+
+
+ 
+
+        <div class="form-grid">
+
+
+ 
+
+          <div class="form-group">
+
+
+ 
+
+            <label for="account-name">Account Name</label>
+
+
+ 
+
+            <input type="text" id="account-name" placeholder="e.g. Axis Savings, HDFC Credit" required>
+
+
+ 
+
+          </div>
+
+
+ 
+
+          <div class="form-row-2">
+
+
+ 
+
+            <div class="form-group">
+
+
+ 
+
+              <label for="account-type">Type</label>
+
+
+ 
+
+              <select id="account-type" required>
+
+
+ 
+
+                <option value="savings">Savings</option>
+
+
+ 
+
+                <option value="current">Current</option>
+
+
+ 
+
+                <option value="credit">Credit Card</option>
+
+
+ 
+
+                <option value="cash">Cash</option>
+
+
+ 
+
+                <option value="wallet">Wallet</option>
+
+
+ 
+
+                <option value="other">Other</option>
+
+
+ 
+
+              </select>
+
+
+ 
+
+            </div>
+
+
+ 
+
+            <div class="form-group">
+
+
+ 
+
+              <label for="account-opening-balance">Opening Balance (₹)</label>
+
+
+ 
+
+              <input type="number" id="account-opening-balance" step="0.01" placeholder="0.00" value="0">
+
+
+ 
+
+            </div>
+
+
+ 
+
+          </div>
+
+
+ 
+
+          <div class="form-group hidden" id="account-credit-limit-group">
+
+
+ 
+
+            <label for="account-credit-limit">Credit Limit (₹, Optional)</label>
+
+
+ 
+
+            <input type="number" id="account-credit-limit" step="0.01" min="0" placeholder="e.g. 150000">
+
+
+ 
+
+          </div>
+
+
+ 
+
+        </div>
+
+
+ 
+
+        <div class="modal-footer">
+
+
+ 
+
+          <button type="button" class="ghost modal-close-btn">Cancel</button>
+
+
+ 
+
+          <button type="submit" class="primary">Save</button>
+
+
+ 
+
+        </div>
+
+
+ 
+
+      </form>
+
+
+ 
+
+    </div>
+
+
+ 
+
+  </div>
+
+
+
+ 
+
+
+
+
+ 
+
+  <!-- 4. CATEGORY MODAL -->
+
+
+ 
+
+  <div class="modal-overlay" id="modal-category">
+
+
+ 
+
+    <div class="modal-box">
+
+
+ 
+
+      <div class="modal-title" id="category-modal-title">Add Category</div>
+
+
+ 
+
+     
+
+
+ 
+
+      <!-- Segmented Control -->
+
+
+ 
+
+      <div class="segmented-control" id="cat-kind-segmented">
+
+
+ 
+
+        <button class="segment-btn active" data-kind="expense">Expense</button>
+
+
+ 
+
+        <button class="segment-btn" data-kind="income">Income</button>
+
+
+ 
+
+      </div>
+
+
+
+ 
+
+
+
+
+ 
+
+      <form id="form-category">
+
+
+ 
+
+        <input type="hidden" id="category-id">
+
+
+ 
+
+        <div class="form-grid" style="margin-top: 12px;">
+
+
+ 
+
+         
+
+
+ 
+
+          <div class="emoji-picker-container">
+
+
+ 
+
+            <label>Select Emoji Icon</label>
+
+
+ 
+
+            <div class="emoji-grid" id="category-emoji-grid">
+
+
+ 
+
+              <!-- Populated dynamically based on Expense or Income segmented control -->
+
+
+ 
+
+            </div>
+
+
+ 
+
+          </div>
+
+
+
+ 
+
+
+
+
+ 
+
+          <div class="form-group">
+
+
+ 
+
+            <label for="category-name">Category Name</label>
+
+
+ 
+
+            <input type="text" id="category-name" placeholder="e.g. Groceries, Consulting" required>
+
+
+ 
+
+          </div>
+
+
+ 
+
+          <div class="form-group" id="category-group-field">
+
+
+ 
+
+            <label for="category-group">Budget Group</label>
+
+
+ 
+
+            <select id="category-group"></select>
+
+
+ 
+
+          </div>
+
+
+ 
+
+        </div>
+
+
+ 
+
+       
+
+
+ 
+
+        <div class="modal-footer">
+
+
+ 
+
+          <button type="button" class="ghost modal-close-btn">Cancel</button>
+
+
+ 
+
+          <button type="submit" class="primary">Save</button>
+
+
+ 
+
+        </div>
+
+
+ 
+
+      </form>
+
+
+ 
+
+    </div>
+
+
+ 
+
+  </div>
+
+
+
+ 
+
+
+
+
+ 
+
+  <!-- 5. BUDGET MODAL -->
+
+
+ 
+
+  <div class="modal-overlay" id="modal-budget">
+
+
+ 
+
+    <div class="modal-box">
+
+
+ 
+
+      <div class="modal-title" id="budget-modal-title">Add Budget</div>
+
+
+ 
+
+      <form id="form-budget">
+
+
+ 
+
+        <input type="hidden" id="budget-id">
+
+
+ 
+
+        <div class="form-grid">
+
+
+ 
+
+          <div class="form-group">
+
+
+ 
+
+            <label for="budget-category">Category</label>
+
+
+ 
+
+            <select id="budget-category" required></select>
+
+
+ 
+
+          </div>
+
+
+ 
+
+          <div class="form-group">
+
+
+ 
+
+            <label for="budget-limit">Monthly Limit (₹)</label>
+
+
+ 
+
+            <input type="number" id="budget-limit" step="1" min="1" placeholder="e.g. 5000" required>
+
+
+ 
+
+          </div>
+
+
+ 
+
+        </div>
+
+
+ 
+
+        <div class="modal-footer">
+
+
+ 
+
+          <button type="button" class="ghost modal-close-btn">Cancel</button>
+
+
+ 
+
+          <button type="submit" class="primary">Save</button>
+
+
+ 
+
+        </div>
+
+
+ 
+
+      </form>
+
+
+ 
+
+    </div>
+
+
+ 
+
+  </div>
+
+
+
+ 
+
+
+
+
+ 
+
+  <!-- 6. INVESTMENT MODAL -->
+
+
+ 
+
+  <div class="modal-overlay" id="modal-investment">
+
+
+ 
+
+    <div class="modal-box">
+
+
+ 
+
+      <div class="modal-title" id="investment-modal-title">Add Investment</div>
+
+
+ 
+
+      <form id="form-investment">
+
+
+ 
+
+        <input type="hidden" id="investment-id">
+
+
+ 
+
+        <div class="form-grid">
+
+
+ 
+
+          <div class="form-group">
+
+
+ 
+
+            <label for="investment-name">Investment Name</label>
+
+
+ 
+
+            <input type="text" id="investment-name" placeholder="e.g. Parag Parikh, SBI Gold" required>
+
+
+ 
+
+          </div>
+
+
+ 
+
+          <div class="form-row-2">
+
+
+ 
+
+            <div class="form-group">
+
+
+ 
+
+              <label for="investment-type">Type</label>
+
+
+ 
+
+              <select id="investment-type" required>
+
+
+ 
+
+                <option value="stocks">Stocks</option>
+
+
+ 
+
+                <option value="mutual_funds">Mutual Funds</option>
+
+
+ 
+
+                <option value="etf">ETF</option>
+
+
+ 
+
+                <option value="fd">Fixed Deposit</option>
+
+
+ 
+
+                <option value="ppf">PPF</option>
+
+
+ 
+
+                <option value="nps">NPS</option>
+
+
+ 
+
+                <option value="crypto">Crypto</option>
+
+
+ 
+
+                <option value="gold">Gold</option>
+
+
+ 
+
+                <option value="real_estate">Real Estate</option>
+
+
+ 
+
+                <option value="other">Other</option>
+
+
+ 
+
+              </select>
+
+
+ 
+
+            </div>
+
+
+ 
+
+            <div class="form-group">
+
+
+ 
+
+              <label for="investment-invested">Amount Invested (₹)</label>
+
+
+ 
+
+              <input type="number" id="investment-invested" step="0.01" min="0" placeholder="0.00" required>
+
+
+ 
+
+            </div>
+
+
+ 
+
+          </div>
+
+
+ 
+
+          <div class="form-row-2">
+
+
+ 
+
+            <div class="form-group">
+
+
+ 
+
+              <label for="investment-current">Current Market Value (₹)</label>
+
+
+ 
+
+              <input type="number" id="investment-current" step="0.01" min="0" placeholder="0.00" required>
+
+
+ 
+
+            </div>
+
+
+ 
+
+            <div class="form-group">
+
+
+ 
+
+              <label for="investment-date">Date Acquired (Optional)</label>
+
+
+ 
+
+              <input type="date" id="investment-date">
+
+
+ 
+
+            </div>
+
+
+ 
+
+          </div>
+
+
+ 
+
+          <div class="form-group">
+
+
+ 
+
+            <label for="investment-note">Note (Optional)</label>
+
+
+ 
+
+            <textarea id="investment-note" placeholder="Add notes here..." rows="2"></textarea>
+
+
+ 
+
+          </div>
+
+
+ 
+
+        </div>
+
+
+ 
+
+        <div class="modal-footer">
+
+
+ 
+
+          <button type="button" class="ghost modal-close-btn">Cancel</button>
+
+
+ 
+
+          <button type="submit" class="primary">Save</button>
+
+
+ 
+
+        </div>
+
+
+ 
+
+      </form>
+
+
+ 
+
+    </div>
+
+
+ 
+
+  </div>
+
+
+
+ 
+
+
+
+
+ 
+
+  <!-- 7. DAY DETAIL MODAL (Calendar clicks) -->
+
+
+ 
+
+  <div class="modal-overlay" id="modal-day-detail">
+
+
+ 
+
+    <div class="modal-box" style="max-width: 600px;">
+
+
+ 
+
+      <div class="modal-title" id="day-detail-title">Saturday, June 28, 2025</div>
+
+
+ 
+
+     
+
+
+ 
+
+      <div class="day-detail-transactions" id="day-detail-trans-list">
+
+
+ 
+
+        <!-- List of transactions populated dynamically -->
+
+
+ 
+
+      </div>
+
+
+
+ 
+
+
+
+
+ 
+
+      <div class="modal-footer" style="justify-content: space-between; align-items: center; margin-top: 16px;">
+
+
+ 
+
+        <button class="primary" id="day-detail-add-trans-btn">+ Add Transaction</button>
+
+
+ 
+
+        <button class="ghost modal-close-btn">Close</button>
+
+
+ 
+
+      </div>
+
+
+ 
+
+    </div>
+
+
+ 
+
+  </div>
+
+
+
+ 
+
+
+
+
+ 
+
+  <!-- 8. SAVINGS BUCKET MODAL -->
+
+
+ 
+
+  <div class="modal-overlay" id="modal-savings-bucket">
+
+
+ 
+
+    <div class="modal-box">
+
+
+ 
+
+      <div class="modal-title" id="savings-bucket-modal-title">Add Goal-Based Bucket</div>
+
+
+ 
+
+      <form id="form-savings-bucket">
+
+
+ 
+
+        <input type="hidden" id="savings-bucket-id">
+
+
+ 
+
+        <div class="form-grid">
+
+
+ 
+
+          <div class="form-row-2">
+
+
+ 
+
+            <div class="form-group">
+
+
+ 
+
+              <label for="savings-bucket-icon">Icon / Emoji</label>
+
+
+ 
+
+              <input type="text" id="savings-bucket-icon" placeholder="e.g. 🎯, 🛡️, 🏝️" required>
+
+
+ 
+
+            </div>
+
+
+ 
+
+            <div class="form-group">
+
+
+ 
+
+              <label for="savings-bucket-name">Bucket Name</label>
+
+
+ 
+
+              <input type="text" id="savings-bucket-name" placeholder="e.g. Emergency Fund" required>
+
+
+ 
+
+            </div>
+
+
+ 
+
+          </div>
+
+
+ 
+
+          <div class="form-row-2">
+
+
+ 
+
+            <div class="form-group">
+
+
+ 
+
+              <label for="savings-bucket-target">Target Amount (₹)</label>
+
+
+ 
+
+              <input type="number" id="savings-bucket-target" step="1" min="1" placeholder="e.g. 50000" required>
+
+
+ 
+
+            </div>
+
+
+ 
+
+            <div class="form-group">
+
+
+ 
+
+              <label for="savings-bucket-monthly">Monthly Contribution Goal (₹)</label>
+
+
+ 
+
+              <input type="number" id="savings-bucket-monthly" step="1" min="0" placeholder="e.g. 5000">
+
+
+ 
+
+            </div>
+
+
+ 
+
+          </div>
+
+
+ 
+
+          <div class="form-group">
+
+
+ 
+
+            <label for="savings-bucket-notes">Notes (Optional)</label>
+
+
+ 
+
+            <textarea id="savings-bucket-notes" placeholder="Notes about this goal..." rows="2"></textarea>
+
+
+ 
+
+          </div>
+
+
+ 
+
+        </div>
+
+
+ 
+
+        <div class="modal-footer">
+
+
+ 
+
+          <button type="button" class="ghost modal-close-btn">Cancel</button>
+
+
+ 
+
+          <button type="submit" class="primary">Save</button>
+
+
+ 
+
+        </div>
+
+
+ 
+
+      </form>
+
+
+ 
+
+    </div>
+
+
+ 
+
+  </div>
+
+
+
+ 
+
+
+
+
+ 
+
+  <!-- 9. BUCKET TRANSFER MODAL -->
+
+
+ 
+
+  <div class="modal-overlay" id="modal-bucket-transfer">
+
+
+ 
+
+    <div class="modal-box">
+
+
+ 
+
+      <div class="modal-title" id="bucket-transfer-modal-title">Transfer Funds</div>
+
+
+ 
+
+      <form id="form-bucket-transfer">
+
+
+ 
+
+        <input type="hidden" id="bucket-transfer-id">
+
+
+ 
+
+        <input type="hidden" id="bucket-transfer-action">
+
+
+ 
+
+        <div class="form-grid">
+
+
+ 
+
+          <div class="form-row-2">
+
+
+ 
+
+            <div class="form-group">
+
+
+ 
+
+              <label for="bucket-transfer-source">Source (Account or Bucket)</label>
+
+
+ 
+
+              <select id="bucket-transfer-source" required></select>
+
+
+ 
+
+            </div>
+
+
+ 
+
+            <div class="form-group">
+
+
+ 
+
+              <label for="bucket-transfer-amount">Amount (₹)</label>
+
+
+ 
+
+              <input type="number" id="bucket-transfer-amount" step="0.01" min="0.01" placeholder="0.00" required>
+
+
+ 
+
+            </div>
+
+
+ 
+
+          </div>
+
+
+ 
+
+          <div class="form-group">
+
+
+ 
+
+            <label for="bucket-transfer-date">Date</label>
+
+
+ 
+
+            <input type="date" id="bucket-transfer-date" required>
+
+
+ 
+
+          </div>
+
+
+ 
+
+        </div>
+
+
+ 
+
+        <div class="modal-footer">
+
+
+ 
+
+          <button type="button" class="ghost modal-close-btn">Cancel</button>
+
+
+ 
+
+          <button type="submit" class="primary">Confirm</button>
+
+
+ 
+
+        </div>
+
+
+ 
+
+      </form>
+
+
+ 
+
+    </div>
+
+
+ 
+
+  </div>
+
+
+
+ 
+
+
+
+
+ 
+
+  <!-- 10. DEBT & EMI MODAL -->
+
+
+ 
+
+  <div class="modal-overlay" id="modal-debt">
+
+
+ 
+
+    <div class="modal-box" style="max-width: 550px;">
+
+
+ 
+
+      <div class="modal-title" id="debt-modal-title">Add Debt Record</div>
+
+
+ 
+
+      <form id="form-debt">
+
+
+ 
+
+        <input type="hidden" id="debt-id">
+
+
+ 
+
+        <div class="form-grid">
+
+
+ 
+
+          <div class="form-row-2">
+
+
+ 
+
+            <div class="form-group">
+
+
+ 
+
+              <label for="debt-name">Debt Name</label>
+
+
+ 
+
+              <input type="text" id="debt-name" placeholder="e.g. TV EMI, Home Loan" required>
+
+
+ 
+
+            </div>
+
+
+ 
+
+            <div class="form-group">
+
+
+ 
+
+              <label for="debt-category">Category</label>
+
+
+ 
+
+              <select id="debt-category" required></select>
+
+
+ 
+
+            </div>
+
+
+ 
+
+          </div>
+
+
+ 
+
+          <div class="form-row-3">
+
+
+ 
+
+            <div class="form-group">
+
+
+ 
+
+              <label for="debt-original">Original Amount (₹)</label>
+
+
+ 
+
+              <input type="number" id="debt-original" step="0.01" min="1" placeholder="0.00" required>
+
+
+ 
+
+            </div>
+
+
+ 
+
+            <div class="form-group">
+
+
+ 
+
+              <label for="debt-emi">Monthly EMI (₹)</label>
+
+
+ 
+
+              <input type="number" id="debt-emi" step="0.01" min="1" placeholder="0.00" required>
+
+
+ 
+
+            </div>
+
+
+ 
+
+            <div class="form-group">
+
+
+ 
+
+              <label for="debt-interest">Interest Rate (%, Optional)</label>
+
+
+ 
+
+              <input type="number" id="debt-interest" step="0.01" min="0" placeholder="e.g. 8.5">
+
+
+ 
+
+            </div>
+
+
+ 
+
+          </div>
+
+
+ 
+
+          <div class="form-row-3">
+
+
+ 
+
+            <div class="form-group">
+
+
+ 
+
+              <label for="debt-tenure">Total Tenure (Months)</label>
+
+
+ 
+
+              <input type="number" id="debt-tenure" step="1" min="1" placeholder="e.g. 12" required>
+
+
+ 
+
+            </div>
+
+
+ 
+
+            <div class="form-group">
+
+
+ 
+
+              <label for="debt-remaining-tenure">Remaining EMIs</label>
+
+
+ 
+
+              <input type="number" id="debt-remaining-tenure" step="1" min="0" placeholder="e.g. 9" required>
+
+
+ 
+
+            </div>
+
+
+ 
+
+            <div class="form-group">
+
+
+ 
+
+              <label for="debt-outstanding">Remaining Outstanding (₹)</label>
+
+
+ 
+
+              <input type="number" id="debt-outstanding" step="0.01" min="0" placeholder="0.00" required>
+
+
+ 
+
+            </div>
+
+
+ 
+
+          </div>
+
+
+ 
+
+          <div class="form-row-2">
+
+
+ 
+
+            <div class="form-group">
+
+
+ 
+
+              <label for="debt-start-date">Start Date</label>
+
+
+ 
+
+              <input type="date" id="debt-start-date" required>
+
+
+ 
+
+            </div>
+
+
+ 
+
+            <div class="form-group">
+
+
+ 
+
+              <label for="debt-recurring-link">Link to Recurring EMI Bill (Optional)</label>
+
+
+ 
+
+              <select id="debt-recurring-link"></select>
+
+
+ 
+
+            </div>
+
+
+ 
+
+          </div>
+
+
+ 
+
+          <div class="form-group">
+
+
+ 
+
+            <label for="debt-notes">Notes (Optional)</label>
+
+
+ 
+
+            <textarea id="debt-notes" placeholder="Any additional notes..." rows="2"></textarea>
+
+
+ 
+
+          </div>
+
+
+ 
+
+        </div>
+
+
+ 
+
+        <div class="modal-footer">
+
+
+ 
+
+          <button type="button" class="ghost modal-close-btn">Cancel</button>
+
+
+ 
+
+          <button type="submit" class="primary">Save</button>
+
+
+ 
+
+        </div>
+
+
+ 
+
+      </form>
+
+
+ 
+
+    </div>
+
+
+ 
+
+  </div>
+
+
+
+ 
+
+
+
+
+ 
+
+  <!-- 11. FINANCIAL HEALTH BREAKDOWN MODAL -->
+
+
+ 
+
+  <div class="modal-overlay" id="modal-health-score">
+
+
+ 
+
+    <div class="modal-box" style="max-width: 500px;">
+
+
+ 
+
+      <div class="modal-title">Financial Health Breakdown</div>
+
+
+ 
+
+      <div id="health-score-breakdown-content" style="display: flex; flex-direction: column; gap: 16px; margin: 16px 0;">
+
+
+ 
+
+        <!-- Loaded dynamically -->
+
+
+ 
+
+      </div>
+
+
+ 
+
+      <div class="modal-footer">
+
+
+ 
+
+        <button type="button" class="primary modal-close-btn">Close</button>
+
+
+ 
+
+      </div>
+
+
+ 
+
+    </div>
+
+
+ 
+
+  </div>
+
+
+ 
+
+  <!-- 12. CREDIT SCORE MODAL -->
+
+
+ 
+
+  <div class="modal-overlay" id="modal-credit-score">
+
+
+ 
+
+    <div class="modal-box">
+
+
+ 
+
+      <div class="modal-title">Update Credit Score</div>
+
+
+ 
+
+      <form id="form-credit-score">
+
+
+ 
+
+        <div class="form-grid">
+
+
+ 
+
+          <div class="form-row-2">
+
+
+ 
+
+            <div class="form-group">
+
+
+ 
+
+              <label for="credit-score-value">Score</label>
+
+
+ 
+
+              <input type="number" id="credit-score-value" step="1" min="300" max="900" placeholder="e.g. 782" required>
+
+
+ 
+
+            </div>
+
+
+ 
+
+            <div class="form-group">
+
+
+ 
+
+              <label for="credit-score-date">As Of</label>
+
+
+ 
+
+              <input type="date" id="credit-score-date" required>
+
+
+ 
+
+            </div>
+
+
+ 
+
+          </div>
+
+
+ 
+
+        </div>
+
+
+ 
+
+        <div class="modal-footer">
+
+
+ 
+
+          <button type="button" class="ghost modal-close-btn">Cancel</button>
+
+
+ 
+
+          <button type="submit" class="primary">Save</button>
+
+
+ 
+
+        </div>
+
+
+ 
+
+      </form>
+
+
+ 
+
+    </div>
+
+
+ 
+
+  </div>
+
+
+
+ 
+
+
+
+
+ 
+
+  <!-- Main JavaScript File -->
+
+
+ 
+
+  <script src="app.js"></script>
+
+
+ 
+
+</body>
+
+
+ 
+
+</html>
+
+
+
+ 
+
+
+
+
+ 
