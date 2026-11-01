@@ -936,7 +936,9 @@ function accountCurrentBalance(data: FinanceData, account: FinanceRecord) {
   return value;
 }
 function accountBalance(data: FinanceData) {
-  return data.accounts.reduce((total, account) => total + accountCurrentBalance(data, account), 0);
+  return data.accounts
+    .filter((account) => recordText(account.type).trim().toLocaleLowerCase() !== 'credit')
+    .reduce((total, account) => total + accountCurrentBalance(data, account), 0);
 }
 function bucketBalance(data: FinanceData, bucketId: string) {
   return data.transactions.reduce((total, row) => {
