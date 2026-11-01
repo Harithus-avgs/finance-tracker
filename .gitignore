@@ -1,0 +1,10 @@
+# Personal finance data and exported backups
+/data.json
+/Data backup.txt
+/New Text Document.txt
+
+# Local editor and operating-system files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
