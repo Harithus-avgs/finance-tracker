@@ -142,6 +142,8 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px s
 .encouragement small { color: #8a9887; font-size: 9.5px; }
 .encouragement > i { color: #86a77c; font-size: 18px; font-style: normal; }
 .income-text { color: #43865b !important; }
+.stat-card.positive > strong { color: #43865b !important; }
+.stat-card.expense > strong { color: #a45f4c !important; }
 
 .summary-strip { display: flex; align-items: center; gap: 36px; padding: 15px 18px; margin-bottom: 16px; border: 1px solid var(--line); border-radius: 10px; background: white; }
 .summary-strip > span { display: grid; gap: 5px; }
