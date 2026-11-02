@@ -464,11 +464,6 @@ button.calendar-cell:hover, button.calendar-cell.selected { position: relative; 
 .score-chart svg line { stroke: var(--line-strong); stroke-dasharray: 3 5; }
 .score-chart svg polyline { fill: none; stroke: var(--green); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
 .score-chart > div { display: flex; justify-content: space-between; color: var(--muted); font-size: 10px; }
-.surplus-assistant { margin-top: 14px; background: linear-gradient(125deg, var(--surface), var(--green-soft)); }
-.surplus-assistant > p { color: var(--muted-dark); font-size: 12px; }
-.surplus-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
-.surplus-actions > div { display: flex; align-items: center; gap: 7px; min-height: 39px; padding: 5px 8px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface); color: var(--muted-dark); font-size: 11px; }
-.surplus-actions select { max-width: 180px; border: 0; background: transparent; color: var(--ink); font-size: 11px; }
 .dashboard-budget-panel { margin-top: 14px; }
 .dashboard-budget-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
 .dashboard-budget-grid > div { display: grid; gap: 8px; min-width: 0; }
