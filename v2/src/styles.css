@@ -1048,3 +1048,34 @@ button.calendar-cell:hover, button.calendar-cell.selected { position: relative; 
   .dashboard-insights .panel { padding: 14px; }
   .recurring-category-grid { grid-template-columns: 1fr; }
 }
+
+/* Keep the dashboard focused; less-used analysis stays available on demand. */
+.page-heading p, .panel-heading p { display: none; }
+.dashboard-insights-foldout { margin-top: 12px; }
+.dashboard-insights-foldout > summary {
+  width: fit-content;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 0;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 12px;
+  list-style: none;
+}
+.dashboard-insights-foldout > summary::-webkit-details-marker { display: none; }
+.dashboard-insights-foldout > summary svg { transition: transform .15s ease; }
+.dashboard-insights-foldout[open] > summary svg { transform: rotate(180deg); }
+.dashboard-insights-foldout > .dashboard-grid { margin-top: 8px; }
+.dashboard-insights-foldout .panel { min-height: 0; }
+.compact-empty { min-height: 58px; display: flex; align-items: center; justify-content: space-between; gap: 12px; color: var(--muted); font-size: 12px; }
+.recurring-category-grid.compact .recurring-category-tile > header span,
+.pending-recurring-grid .recurring-category-tile > header span { display: none; }
+.recurring-category-grid.compact .recurring-tile-row .row-copy small { color: var(--muted); }
+.recurring-category-grid.compact .recurring-tile-row > strong { grid-column: 3; grid-row: 1 / span 2; align-self: center; }
+:root[data-theme="dark"] .dashboard-insights-foldout > summary { color: #a6ada9; }
+:root[data-theme="dark"] .compact-empty { color: #a6ada9; }
+@media (max-width: 680px) {
+  .dashboard-insights-foldout { margin-top: 8px; }
+  .dashboard-insights-foldout > .dashboard-grid { gap: 8px; }
+}
