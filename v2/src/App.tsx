@@ -22,6 +22,18 @@ const secondary = [
   { id: 'settings' as const, label: 'Account & Settings', icon: Settings },
 ];
 
+function financeCacheKey(userId: string) { return `finance-v2-session:${userId}`; }
+function readFinanceCache(userId: string): FinanceData | null {
+  try {
+    const value: unknown = JSON.parse(window.sessionStorage.getItem(financeCacheKey(userId)) ?? 'null');
+    if (!value || typeof value !== 'object') return null;
+    const cached = value as Partial<FinanceData>;
+    const lists: Array<keyof FinanceData> = ['transactions', 'budgets', 'accounts', 'categories', 'investments', 'recurring', 'savingsBuckets', 'debts', 'creditScoreHistory'];
+    if (!lists.every((key) => Array.isArray(cached[key])) || !Array.isArray(cached.budgetGroups)) return null;
+    return cached as FinanceData;
+  } catch { return null; }
+}
+
 export default function App() {
   const previewMode = import.meta.env.DEV && new URLSearchParams(window.location.search).get('preview') === '1';
   const [session, setSession] = useState<Session | null>(null);
@@ -51,7 +63,14 @@ export default function App() {
     let alive = true;
     supabase.auth.getSession().then(({ data: value }) => {
       if (alive) {
-        sessionUserIdRef.current = value.session?.user.id ?? null;
+        const nextUserId = value.session?.user.id ?? null;
+        const accountChanged = nextUserId !== sessionUserIdRef.current;
+        sessionUserIdRef.current = nextUserId;
+        if (!previewMode && accountChanged) {
+          const cached = nextUserId ? readFinanceCache(nextUserId) : null;
+          setData(cached);
+          setDataReady(Boolean(cached));
+        }
         setSession(value.session);
         setAuthReady(true);
       }
@@ -60,8 +79,12 @@ export default function App() {
       const nextUserId = value?.user.id ?? null;
       const accountChanged = nextUserId !== sessionUserIdRef.current;
       sessionUserIdRef.current = nextUserId;
+      if (!previewMode && accountChanged) {
+        const cached = nextUserId ? readFinanceCache(nextUserId) : null;
+        setData(cached);
+        setDataReady(Boolean(cached));
+      }
       setSession(value);
-      if (!previewMode && accountChanged) { setData(null); setDataReady(false); }
       setError('');
     });
     return () => { alive = false; listener.subscription.unsubscribe(); };
@@ -72,13 +95,19 @@ export default function App() {
     if (!session?.user.id) { setData(null); setDataReady(false); return; }
     let alive = true;
     setLoading(true);
-    setDataReady(false);
+    if (!data) setDataReady(false);
     loadFinanceData(session.user.id)
       .then((value) => { if (alive) { setData(value); setDataReady(true); } })
       .catch((reason: Error) => { if (alive) { setError(reason.message); setDataReady(true); } })
       .finally(() => { if (alive) setLoading(false); });
     return () => { alive = false; };
   }, [session?.user.id]);
+
+  useEffect(() => {
+    const userId = session?.user.id;
+    if (!userId || !data || !dataReady) return;
+    try { window.sessionStorage.setItem(financeCacheKey(userId), JSON.stringify(data)); } catch { /* Storage can be unavailable in private browsing. */ }
+  }, [session?.user.id, data, dataReady]);
 
   useEffect(() => {
     const client = supabase;
@@ -395,7 +424,7 @@ export default function App() {
   if (!isSupabaseConfigured && !previewMode) return <ConfigScreen />;
   if (!session && !previewMode) return <SignIn onSignIn={signIn} busy={busy} error={error} />;
   if (session?.user.id && !dataReady) return <div className="loading-screen"><span className="loader" />Syncing your finance data…</div>;
-  if (loading) return <div className="loading-screen"><span className="loader" />Syncing your finance data…</div>;
+  if (loading && !data) return <div className="loading-screen"><span className="loader" />Syncing your finance data…</div>;
   if (error && !data) return <div className="loading-screen error-screen"><ShieldCheck size={24} /><h2>We couldn’t load your data.</h2><p>{error}</p><button className="outline-button" onClick={() => window.location.reload()}>Try again</button><button className="text-button" onClick={signOut}>Sign out</button></div>;
   if (!data) return <Setup name={firstName} busy={busy} error={error} fileRef={importRef} onFresh={startFresh} onImport={importBackup} onSignOut={signOut} />;
 
