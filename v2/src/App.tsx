@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { ChangeEvent, FormEvent, ReactNode, RefObject } from 'react';
-import { ArrowDownRight, ArrowUpRight, Bell, CalendarDays, Check, ChevronDown, Cloud, CreditCard, LayoutDashboard, Landmark, LogOut, MoreHorizontal, Plus, Scale, Search, Settings, ShieldCheck, Sparkles, Tags, Upload, Wallet, X } from 'lucide-react';
+import { ArrowDownRight, ArrowUpRight, Bell, CalendarDays, Check, ChevronDown, Cloud, CreditCard, LayoutDashboard, Landmark, LogOut, MoreHorizontal, Percent, Plus, Scale, Search, Settings, ShieldCheck, Sparkles, Tags, Upload, Wallet, X } from 'lucide-react';
 import type { Session } from '@supabase/supabase-js';
 import { emptyFinanceData, money, normalizeBackup, recordNumber, recordText, todayISO, type FinanceData, type FinanceRecord, DOMAIN_TABLES } from './data';
 import { deleteOne, isSupabaseConfigured, loadFinanceData, replaceDomains, saveDomains, saveOne, savePreferences, supabase } from './supabase';
@@ -540,26 +540,25 @@ function nextOccurrence(rule: FinanceRecord) {
 
 function Dashboard({ data, name, onAdd, onBudgets, onLogRecurring }: { data: FinanceData; name: string; onAdd: () => void; onBudgets: () => void; onLogRecurring: (rule: FinanceRecord, date: string, skip?: boolean) => void }) {
     const today = todayISO(); const month = today.slice(0, 7);
-  const cashAccountCount = cashAccounts(data).length;
   const rows = data.transactions.filter((row) => recordText(row.date).startsWith(month));
   const income = rows.filter((row) => row.type === 'income').reduce((sum, row) => sum + recordNumber(row.amount), 0);
   const expense = rows.filter((row) => row.type === 'expense').reduce((sum, row) => sum + recordNumber(row.amount), 0);
+  const netCashflow = income - expense;
   const spentToday = data.transactions.filter((row) => row.date === today && row.type === 'expense').reduce((sum, row) => sum + recordNumber(row.amount), 0);
-  const budget = data.budgets.filter((row) => !row.month || row.month === month).reduce((sum, row) => sum + recordNumber(row.amount), 0);
   const daysLeft = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate() - new Date().getDate() + 1;
   const lifestyleNames = new Set(data.categories.filter((row) => row.kind === 'expense' && row.groupId === 'grp-lifestyle').map((row) => recordText(row.name)));
   const lifestyleBudget = data.budgets.filter((row) => (!row.month || row.month === month) && lifestyleNames.has(recordText(row.category))).reduce((sum, row) => sum + recordNumber(row.amount), 0);
   const lifestyleSpent = rows.filter((row) => row.type === 'expense' && lifestyleNames.has(recordText(row.category))).reduce((sum, row) => sum + recordNumber(row.amount), 0);
   const guide = lifestyleBudget ? Math.max(0, lifestyleBudget - lifestyleSpent) / Math.max(1, daysLeft) : 0;
   const emergencyBucket = data.savingsBuckets.find((row) => recordText(row.name).toLocaleLowerCase().includes('emergency') || recordText(row.icon).includes('🛡'));
-  const savingsRate = income > 0 ? Math.max(0, (income - expense) / income * 100) : 0;
+  const savingsRate = income > 0 ? netCashflow / income * 100 : 0;
   const emergencyTarget = recordNumber(emergencyBucket?.target) || 50000;
   const emergencyScore = emergencyBucket ? Math.round(Math.min(100, bucketBalance(data, emergencyBucket.id) / emergencyTarget * 100) * 0.25) : 0;
   const emis = data.debts.reduce((sum, row) => sum + recordNumber(row.emiAmount), 0);
   const debtScore = emis === 0 ? 25 : Math.round(25 * (1 - Math.min(1, emis / (Math.max(income, 50000) * 0.4))));
   const activeBudgets = data.budgets.filter((row) => row.month === month);
   const adhered = activeBudgets.filter((budgetRow) => rows.filter((row) => row.type === 'expense' && row.category === budgetRow.category).reduce((sum, row) => sum + recordNumber(row.amount), 0) <= recordNumber(budgetRow.amount)).length;
-  const healthScore = Math.min(100, Math.round(Math.min(25, savingsRate / 30 * 25)) + emergencyScore + debtScore + (activeBudgets.length ? Math.round(25 * adhered / activeBudgets.length) : 25));
+  const healthScore = Math.min(100, Math.max(0, Math.round(Math.min(25, savingsRate / 30 * 25))) + emergencyScore + debtScore + (activeBudgets.length ? Math.round(25 * adhered / activeBudgets.length) : 25));
   const categorySpending = [...new Set(rows.filter((row) => row.type === 'expense').map((row) => recordText(row.category, 'Uncategorized')))].map((categoryName) => ({ name: categoryName, amount: rows.filter((row) => row.type === 'expense' && recordText(row.category, 'Uncategorized') === categoryName).reduce((sum, row) => sum + recordNumber(row.amount), 0) })).sort((a, b) => b.amount - a.amount).slice(0, 5);
   const dashboardBudgets = data.budgets.filter((row) => !row.month || row.month === month).slice(0, 4).map((row) => { const limit = recordNumber(row.amount); const spent = rows.filter((tx) => tx.type === 'expense' && tx.category === row.category).reduce((sum, tx) => sum + recordNumber(tx.amount), 0); return { id: row.id, name: recordText(row.category, 'Budget'), limit, spent }; });
   const pendingRecurring = data.recurring.flatMap((rule) => pendingOccurrences(rule, today).map((date) => ({ rule, date }))).sort((a, b) => a.date.localeCompare(b.date));
@@ -574,8 +573,8 @@ function Dashboard({ data, name, onAdd, onBudgets, onLogRecurring }: { data: Fin
     <div className="stat-grid">
       <Stat label="Income" value={money(income)} hint="Across all accounts" icon={<ArrowDownRight size={18} />} kind="positive" />
       <Stat label="Spent" value={money(expense)} hint="Your tracked spending" icon={<ArrowUpRight size={18} />} kind="expense" />
-      <Stat label="Cash" value={money(accountBalance(data))} hint={cashAccountCount + ' account' + (cashAccountCount === 1 ? '' : 's')} icon={<Landmark size={18} />} />
-      <Stat label="Budget left" value={money(Math.max(0, budget - expense))} hint={budget ? 'This month' : 'No monthly budgets yet'} icon={<Wallet size={18} />} kind="accent" />
+      <Stat label="Net cashflow" value={money(netCashflow)} hint="This month" icon={<Scale size={18} />} kind={netCashflow >= 0 ? 'positive' : 'expense'} />
+      <Stat label="Savings rate" value={`${savingsRate.toFixed(1)}%`} hint="This month" icon={<Percent size={18} />} kind={savingsRate >= 0 ? 'positive' : 'expense'} />
     </div>
     {pendingRecurring.length > 0 && <section className="panel recurring-review-panel">
       <div className="panel-heading"><h2>Due to review</h2></div>
