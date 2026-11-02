@@ -1092,6 +1092,12 @@ button.calendar-cell:hover, button.calendar-cell.selected { position: relative; 
 .budget-parent-group > header > b small { color: var(--muted); font-size: 11px; font-weight: 400; }
 .budget-parent-group > header > .progress-track { grid-column: 1 / -1; }
 .budget-category-grid { display: grid; grid-template-columns: 1fr; gap: 8px; }
+.account-groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); align-items: start; gap: 18px; }
+.account-group { min-width: 0; }
+.account-group > h3 { margin: 4px 0 10px; color: var(--muted-dark); font: 600 13px 'Manrope', sans-serif; }
+.account-group .account-list { grid-template-columns: 1fr; margin-top: 0; }
+:root[data-theme="dark"] .account-list .simple-row > strong.income-text { color: #75d49b !important; }
+:root[data-theme="dark"] .account-list .simple-row > strong.danger-text { color: #ff8585 !important; }
 :root[data-theme="dark"] .progress-track { background: #363a38; }
 :root[data-theme="dark"] .progress-track i,
 :root[data-theme="dark"] .progress-track i.warn,
