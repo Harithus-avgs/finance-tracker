@@ -76,7 +76,7 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px s
 .notice-button { position: relative; }
 .notice-button > i { position: absolute; width: 6px; height: 6px; right: 7px; top: 7px; border-radius: 50%; background: #d39b5a; border: 1px solid #f7f8f5; }
 .top-divider { height: 22px; width: 1px; margin: 0 4px; background: var(--line-strong); }
-.top-actions .account-menu { top: 45px; bottom: auto; right: 0; }
+.top-actions .account-menu { display: none; top: 45px; bottom: auto; right: 0; }
 .mobile-profile { display: none; }
 .mobile-brand { display: none; }
 .page-content { max-width: 1330px; margin: 0 auto; padding: 42px 42px 64px; }
@@ -353,7 +353,7 @@ button.calendar-cell:hover, button.calendar-cell.selected { position: relative; 
   .top-actions > .icon-button:not(.mobile-profile), .top-divider { display: none; }
   .mobile-profile { display: inline-flex; }
   .mobile-profile .avatar { width: 28px; height: 28px; }
-  .top-actions .account-menu { top: 41px; right: 0; }
+  .top-actions .account-menu { display: block; top: 41px; right: 0; }
   .page-content { padding: 27px 16px 30px; }
   .page-heading { align-items: flex-start; margin-bottom: 19px; }
   .page-heading h1 { font-size: 24px; }
