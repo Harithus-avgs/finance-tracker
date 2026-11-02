@@ -1,0 +1,19 @@
+{
+  "name": "Pennywise — Your money, in focus",
+  "short_name": "Pennywise",
+  "description": "A calm, private home for your personal finances.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#090a0a",
+  "theme_color": "#090a0a",
+  "icons": [
+    {
+      "src": "/pennywise-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
+
