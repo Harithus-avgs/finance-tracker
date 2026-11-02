@@ -51,7 +51,7 @@ export default function App() {
   const [dialog, setDialog] = useState<DialogKind | null>(null);
   const [editingRecord, setEditingRecord] = useState<FinanceRecord | null>(null);
   const [bucketAction, setBucketAction] = useState<'fund' | 'withdraw'>('fund');
-  const [darkMode, setDarkMode] = useState(() => window.localStorage.getItem('finance-theme') === 'dark');
+  const [darkMode, setDarkMode] = useState(() => window.localStorage.getItem('pennywise-theme') !== 'light');
   const importRef = useRef<HTMLInputElement>(null);
   const dataRevisionRef = useRef(0);
   const realtimeRequestRef = useRef(0);
@@ -158,7 +158,7 @@ export default function App() {
 
   useEffect(() => {
     document.documentElement.dataset.theme = darkMode ? 'dark' : 'light';
-    window.localStorage.setItem('finance-theme', darkMode ? 'dark' : 'light');
+    window.localStorage.setItem('pennywise-theme', darkMode ? 'dark' : 'light');
   }, [darkMode]);
 
   const user = session?.user;
