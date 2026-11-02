@@ -435,11 +435,11 @@ export default function App() {
         <Brand />
         <span className="nav-caption">PERSONAL SPACE</span>
         <nav className="side-nav" aria-label="Main navigation">
-          {primary.map((item) => <button key={item.id} className={'nav-item ' + (tab === item.id ? 'active' : '')} onClick={() => navigate(item.id)}><item.icon size={19} strokeWidth={1.8} /><span>{item.label}</span></button>)}
+          {primary.map((item) => <button key={item.id} title={item.label} aria-label={item.label} className={'nav-item ' + (tab === item.id ? 'active' : '')} onClick={() => navigate(item.id)}><item.icon size={19} strokeWidth={1.8} /><span>{item.label}</span></button>)}
         </nav>
         <div className="nav-separator" />
-        <button className="nav-item more-toggle" onClick={() => setMoreOpen(!moreOpen)}><MoreHorizontal size={19} /><span>More</span><ChevronDown className={moreOpen ? 'rotate' : ''} size={15} /></button>
-        {moreOpen && <nav className="side-nav secondary-nav">{secondary.map((item) => <button key={item.id} className={'nav-item ' + (tab === item.id ? 'active' : '')} onClick={() => navigate(item.id)}><item.icon size={18} /><span>{item.label}</span></button>)}</nav>}
+        <button title="More sections" aria-label="More sections" aria-expanded={moreOpen} className={'nav-item more-toggle ' + (moreOpen || secondary.some((item) => item.id === tab) ? 'active' : '')} onClick={() => setMoreOpen(!moreOpen)}><MoreHorizontal size={19} /><span>More</span><ChevronDown className={moreOpen ? 'rotate' : ''} size={15} /></button>
+        {moreOpen && <nav className="side-nav secondary-nav" aria-label="More sections">{secondary.map((item) => <button key={item.id} title={item.label} aria-label={item.label} className={'nav-item ' + (tab === item.id ? 'active' : '')} onClick={() => navigate(item.id)}><item.icon size={18} /><span>{item.label}</span></button>)}</nav>}
         <div className="sidebar-bottom">
           <div className="privacy-hint"><ShieldCheck size={17} /><span>Private to your account<br />and synced securely</span></div>
           <button className="user-chip" onClick={() => setMenuOpen(!menuOpen)}><Avatar name={displayName} /><span><b>{firstName}</b><small>Personal account</small></span><MoreHorizontal size={18} /></button>
