@@ -1095,7 +1095,16 @@ button.calendar-cell:hover, button.calendar-cell.selected { position: relative; 
 .account-groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); align-items: start; gap: 18px; }
 .account-group { min-width: 0; }
 .account-group > h3 { margin: 4px 0 10px; color: var(--muted-dark); font: 600 13px 'Manrope', sans-serif; }
-.account-group .account-list { grid-template-columns: 1fr; margin-top: 0; }
+.account-group .account-list { grid-template-columns: repeat(auto-fit, minmax(min(100%, 245px), 1fr)); margin-top: 0; }
+.account-list .simple-row { min-height: 0; grid-template-columns: 30px minmax(0, 1fr) auto; grid-template-rows: auto auto; align-content: center; gap: 5px 10px; padding: 12px; border-radius: 10px; }
+.account-list .row-icon { grid-column: 1; grid-row: 1 / span 2; width: 28px; height: 28px; }
+.account-list .row-copy { grid-column: 2; grid-row: 1; align-self: center; gap: 2px; }
+.account-list .row-copy small { font-size: 10px; }
+.account-list .row-copy b { font-size: 13px; }
+.account-list .simple-row > strong { grid-column: 3; grid-row: 1; justify-self: end; align-self: center; font-size: 14px; text-align: right; }
+.account-list .simple-row > strong::before { display: none; }
+.account-list .row-actions { grid-column: 2 / -1; grid-row: 2; justify-self: end; gap: 10px; }
+.account-list .row-actions .text-button { min-height: 26px; font-size: 10px; }
 :root[data-theme="dark"] .account-list .simple-row > strong.income-text { color: #75d49b !important; }
 :root[data-theme="dark"] .account-list .simple-row > strong.danger-text { color: #ff8585 !important; }
 :root[data-theme="dark"] .progress-track { background: #363a38; }
