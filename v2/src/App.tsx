@@ -43,6 +43,7 @@ export default function App() {
   const importRef = useRef<HTMLInputElement>(null);
   const dataRevisionRef = useRef(0);
   const realtimeRequestRef = useRef(0);
+  const confirmedTransactionsRef = useRef<{ userId: string; records: Map<string, FinanceRecord> } | null>(null);
 
   useEffect(() => {
     if (!supabase) return;
@@ -90,7 +91,16 @@ export default function App() {
           const revisionAtRequest = dataRevisionRef.current;
           const requestId = ++realtimeRequestRef.current;
           loadFinanceData(userId).then((latest) => {
-            if (active && latest && revisionAtRequest === dataRevisionRef.current && requestId === realtimeRequestRef.current) setData(latest);
+            if (!active || !latest || revisionAtRequest !== dataRevisionRef.current || requestId !== realtimeRequestRef.current) return;
+            const confirmed = confirmedTransactionsRef.current;
+            if (confirmed?.userId === userId) {
+              const savedIds = new Set(latest.transactions.map((row) => row.id));
+              for (const id of savedIds) confirmed.records.delete(id);
+              const notYetVisible = [...confirmed.records.values()];
+              latest.transactions = [...latest.transactions, ...notYetVisible];
+              if (!confirmed.records.size) confirmedTransactionsRef.current = null;
+            }
+            setData(latest);
           }).catch(() => undefined);
         }, 450);
       });
@@ -177,6 +187,8 @@ export default function App() {
     try {
       const changed = <T extends FinanceRecord>(after: T[], before: T[]) => after.filter((row, index) => JSON.stringify(row) !== JSON.stringify(before[index]));
       await Promise.all([saveOne(user.id, 'transactions', record), ...changed(investments, current.investments).map((row) => saveOne(user.id, 'investments', row)), ...changed(debts, current.debts).map((row) => saveOne(user.id, 'debts', row))]);
+      if (!confirmedTransactionsRef.current || confirmedTransactionsRef.current.userId !== user.id) confirmedTransactionsRef.current = { userId: user.id, records: new Map() };
+      confirmedTransactionsRef.current.records.set(record.id, record);
       dataRevisionRef.current += 1;
       setData(next);
       if (recordText(record.date).length >= 7) setSelectedMonth(recordText(record.date).slice(0, 7));
