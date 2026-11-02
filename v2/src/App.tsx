@@ -41,6 +41,8 @@ export default function App() {
   const [bucketAction, setBucketAction] = useState<'fund' | 'withdraw'>('fund');
   const [darkMode, setDarkMode] = useState(() => window.localStorage.getItem('finance-theme') === 'dark');
   const importRef = useRef<HTMLInputElement>(null);
+  const dataRevisionRef = useRef(0);
+  const realtimeRequestRef = useRef(0);
 
   useEffect(() => {
     if (!supabase) return;
@@ -85,7 +87,11 @@ export default function App() {
       }, () => {
         window.clearTimeout(syncTimer);
         syncTimer = window.setTimeout(() => {
-          loadFinanceData(userId).then((latest) => { if (active && latest) setData(latest); }).catch(() => undefined);
+          const revisionAtRequest = dataRevisionRef.current;
+          const requestId = ++realtimeRequestRef.current;
+          loadFinanceData(userId).then((latest) => {
+            if (active && latest && revisionAtRequest === dataRevisionRef.current && requestId === realtimeRequestRef.current) setData(latest);
+          }).catch(() => undefined);
         }, 450);
       });
     }
@@ -171,6 +177,7 @@ export default function App() {
     try {
       const changed = <T extends FinanceRecord>(after: T[], before: T[]) => after.filter((row, index) => JSON.stringify(row) !== JSON.stringify(before[index]));
       await Promise.all([saveOne(user.id, 'transactions', record), ...changed(investments, current.investments).map((row) => saveOne(user.id, 'investments', row)), ...changed(debts, current.debts).map((row) => saveOne(user.id, 'debts', row))]);
+      dataRevisionRef.current += 1;
       setData(next);
       if (recordText(record.date).length >= 7) setSelectedMonth(recordText(record.date).slice(0, 7));
       setDialog(null); setEditingRecord(null); setToast('Saved and synced.');
