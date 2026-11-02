@@ -504,7 +504,7 @@ export default function App() {
   );
 }
 
-function Brand({ compact = false }: { compact?: boolean }) { return <div className={'brand ' + (compact ? 'compact' : '')}><span className="brand-mark"><i /><i /><i /></span>{compact ? <b>pennywise</b> : <span><b>pennywise</b><small>YOUR MONEY, IN FOCUS</small></span>}</div>; }
+function Brand({ compact = false }: { compact?: boolean }) { return <div className={'brand ' + (compact ? 'compact' : '')}><img className="brand-mark" src="/pennywise-icon.svg" alt="" />{compact ? <b>pennywise</b> : <span><b>pennywise</b><small>YOUR MONEY, IN FOCUS</small></span>}</div>; }
 function Avatar({ name }: { name: string }) { return <i className="avatar">{name.split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part[0]).join('').toUpperCase() || 'Y'}</i>; }
 function AccountMenu({ name, email, onSettings, onSignOut }: { name: string; email: string; onSettings: () => void; onSignOut: () => void }) { return <div className="account-menu"><div className="account-menu-head"><Avatar name={name} /><span><b>{name}</b><small>{email}</small></span></div><button onClick={onSettings}><Settings size={16} />Account & Settings</button><button onClick={onSignOut}><LogOut size={16} />Sign out</button></div>; }
 
