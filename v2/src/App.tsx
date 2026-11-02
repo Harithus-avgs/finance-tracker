@@ -197,7 +197,15 @@ export default function App() {
   const persist = async (key: DomainKey, record: FinanceRecord, next: FinanceData) => {
     if (!user && previewMode) { setData(next); setDialog(null); setEditingRecord(null); setToast('Preview only — this change was not saved.'); return; }
     if (!user) return;
-    try { await saveOne(user.id, key, record); setData(next); setDialog(null); setEditingRecord(null); setToast('Saved and synced.'); }
+    try {
+      await saveOne(user.id, key, record);
+      if (key === 'transactions') {
+        if (!confirmedTransactionsRef.current || confirmedTransactionsRef.current.userId !== user.id) confirmedTransactionsRef.current = { userId: user.id, records: new Map() };
+        confirmedTransactionsRef.current.records.set(record.id, record);
+        dataRevisionRef.current += 1;
+      }
+      setData(next); setDialog(null); setEditingRecord(null); setToast('Saved and synced.');
+    }
     catch (reason) { setError((reason as Error).message); }
   };
   const saveTransaction = async (record: FinanceRecord) => {
