@@ -710,3 +710,109 @@ button.calendar-cell:hover, button.calendar-cell.selected { position: relative; 
 .danger-text, .stat-card.expense > strong { color: #bd3d3d !important; }
 :root[data-theme="dark"] .income-text, :root[data-theme="dark"] .stat-card.positive > strong { color: #75d49b !important; }
 :root[data-theme="dark"] .danger-text, :root[data-theme="dark"] .stat-card.expense > strong { color: #ff8585 !important; }
+
+/* Fey-inspired contrast for Pennywise: near-black canvas, quiet charcoal tiles. */
+:root[data-theme="dark"] {
+  --bg: #0b0c0c;
+  --surface: #141616;
+  --surface-soft: #1b1d1d;
+  --line: #292b2b;
+  --line-strong: #3b3e3e;
+  --ink: #f1f2f1;
+  --muted: #858b88;
+  --muted-dark: #b8bdb9;
+  --green: #e7e9e7;
+  --green-dark: #fff;
+  --green-soft: #202323;
+  --mint: #252828;
+  --amber-soft: #272827;
+  --shadow: 0 16px 38px rgba(0, 0, 0, .24);
+  background: var(--bg);
+}
+:root[data-theme="dark"] body,
+:root[data-theme="dark"] .app-shell,
+:root[data-theme="dark"] .main-column { color: var(--ink); background: var(--bg); }
+:root[data-theme="dark"] .sidebar,
+:root[data-theme="dark"] .topbar,
+:root[data-theme="dark"] .mobile-nav { background: #0e1010; border-color: var(--line); }
+:root[data-theme="dark"] .topbar { background: rgba(14, 16, 16, .92); }
+:root[data-theme="dark"] .nav-item.active,
+:root[data-theme="dark"] .nav-item:hover,
+:root[data-theme="dark"] .user-chip:hover { color: var(--ink); background: #202222; }
+:root[data-theme="dark"] .nav-item.active svg { color: var(--ink); }
+:root[data-theme="dark"] .crumb b,
+:root[data-theme="dark"] .page-heading h1,
+:root[data-theme="dark"] .panel-heading h2,
+:root[data-theme="dark"] .row-copy b,
+:root[data-theme="dark"] .simple-row > strong,
+:root[data-theme="dark"] .stat-card > strong,
+:root[data-theme="dark"] .summary-strip b,
+:root[data-theme="dark"] .budget-summary b,
+:root[data-theme="dark"] .budget-item-values b,
+:root[data-theme="dark"] .asset-title,
+:root[data-theme="dark"] .asset-title > span,
+:root[data-theme="dark"] .recurring-category-tile > header b,
+:root[data-theme="dark"] .recurring-tile-row > strong,
+:root[data-theme="dark"] .recurring-tile-row .row-copy b { color: var(--ink); }
+:root[data-theme="dark"] .daily-focus,
+:root[data-theme="dark"] .stat-card,
+:root[data-theme="dark"] .panel,
+:root[data-theme="dark"] .summary-strip,
+:root[data-theme="dark"] .budget-summary,
+:root[data-theme="dark"] .budget-group-card,
+:root[data-theme="dark"] .account-list .simple-row,
+:root[data-theme="dark"] .credit-cards-list .simple-row,
+:root[data-theme="dark"] .investment-tile,
+:root[data-theme="dark"] .asset-item,
+:root[data-theme="dark"] .budget-item,
+:root[data-theme="dark"] .debt-item,
+:root[data-theme="dark"] .recurring-category-tile { border-color: var(--line); background: var(--surface); box-shadow: none; }
+:root[data-theme="dark"] .daily-focus { background: #111313; }
+:root[data-theme="dark"] .daily-copy strong,
+:root[data-theme="dark"] .daily-spent b { color: var(--ink); }
+:root[data-theme="dark"] .daily-icon,
+:root[data-theme="dark"] .stat-card > div > i,
+:root[data-theme="dark"] .row-icon,
+:root[data-theme="dark"] .empty-state > i,
+:root[data-theme="dark"] .quiet-badge,
+:root[data-theme="dark"] .budget-item-values > span { color: var(--muted-dark); background: var(--surface-soft); }
+:root[data-theme="dark"] .budget-item-values > span { border-color: var(--line); }
+:root[data-theme="dark"] .daily-spent { border-left-color: var(--line); }
+:root[data-theme="dark"] .simple-row,
+:root[data-theme="dark"] .recurring-tile-row,
+:root[data-theme="dark"] .recurring-category-tile > header { border-color: var(--line); }
+:root[data-theme="dark"] .row-copy small,
+:root[data-theme="dark"] .daily-copy small,
+:root[data-theme="dark"] .stat-card > div,
+:root[data-theme="dark"] .stat-card > small,
+:root[data-theme="dark"] .panel-heading p,
+:root[data-theme="dark"] .asset-meta,
+:root[data-theme="dark"] .recurring-tile-row .row-copy small { color: var(--muted); }
+:root[data-theme="dark"] .primary-button { color: #111313; background: #eceeec; border-color: #eceeec; }
+:root[data-theme="dark"] .primary-button:hover { color: #111313; background: #d3d7d4; border-color: #d3d7d4; }
+:root[data-theme="dark"] .outline-button,
+:root[data-theme="dark"] .filter-button,
+:root[data-theme="dark"] .subtle-button { color: var(--ink); border-color: var(--line-strong); background: #191b1b; }
+:root[data-theme="dark"] .outline-button:hover,
+:root[data-theme="dark"] .filter-button:hover,
+:root[data-theme="dark"] .subtle-button:hover { background: #242626; }
+:root[data-theme="dark"] .text-button,
+:root[data-theme="dark"] .review-link { color: var(--ink); }
+:root[data-theme="dark"] .progress-track,
+:root[data-theme="dark"] .progress-track i,
+:root[data-theme="dark"] .progress-track i.warn,
+:root[data-theme="dark"] .progress-track i.over { background: #555b57; }
+:root[data-theme="dark"] .auth-page,
+:root[data-theme="dark"] .setup-page { background: #0b0c0c; }
+:root[data-theme="dark"] .auth-card,
+:root[data-theme="dark"] .setup-option { color: var(--ink); border-color: var(--line); background: var(--surface); box-shadow: none; }
+:root[data-theme="dark"] .auth-card h1,
+:root[data-theme="dark"] .setup-main h1 { color: var(--ink); }
+:root[data-theme="dark"] .auth-card > p,
+:root[data-theme="dark"] .setup-main > p { color: var(--muted); }
+:root[data-theme="dark"] .auth-art { background: #171919; }
+:root[data-theme="dark"] .art-glow { display: none; }
+:root[data-theme="dark"] .art-bars i,
+:root[data-theme="dark"] .art-bars i:nth-child(3n) { background: #777d79; }
+:root[data-theme="dark"] .google-button { color: var(--ink); border-color: var(--line); background: #1b1d1d; }
+:root[data-theme="dark"] .toast { background: #eceeec; color: #151716; }
