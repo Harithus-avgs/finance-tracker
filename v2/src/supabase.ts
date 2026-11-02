@@ -13,12 +13,20 @@ export async function loadFinanceData(userId: string): Promise<FinanceData | nul
   if (!supabase) throw new Error('Supabase is not configured.');
   const entries = await Promise.all(
     Object.entries(DOMAIN_TABLES).map(async ([key, table]) => {
-      const { data, error } = await supabase!
-        .from(table)
-        .select('data')
-        .eq('user_id', userId);
-      if (error) throw error;
-      return [key, (data ?? []).map((row) => row.data as FinanceRecord)] as const;
+      const records: FinanceRecord[] = [];
+      const pageSize = 1000;
+      for (let offset = 0; ; offset += pageSize) {
+        const { data, error } = await supabase!
+          .from(table)
+          .select('id,data')
+          .eq('user_id', userId)
+          .order('id', { ascending: true })
+          .range(offset, offset + pageSize - 1);
+        if (error) throw error;
+        records.push(...(data ?? []).map((row) => row.data as FinanceRecord));
+        if (!data || data.length < pageSize) break;
+      }
+      return [key, records] as const;
     }),
   );
   const { data: preferences, error } = await supabase
@@ -116,3 +124,4 @@ export async function savePreferences(userId: string, data: Record<string, unkno
   const { error } = await supabase.from('finance_preferences').upsert({ user_id: userId, data });
   if (error) throw error;
 }
+
