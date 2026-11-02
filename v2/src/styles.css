@@ -1083,8 +1083,21 @@ button.calendar-cell:hover, button.calendar-cell.selected { position: relative; 
 .secondary-foldout[open] > summary svg { transform: rotate(180deg); }
 .secondary-foldout-content { padding: 0 15px 14px; }
 .secondary-foldout-content .recurring-category-grid { margin-top: 8px; }
+.budget-parent-panel { display: block !important; }
+.budget-parent-groups { display: grid; gap: 18px; }
+.budget-parent-group > header { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 8px 14px; margin-bottom: 10px; color: var(--ink); }
+.budget-parent-group > header > span { font-size: 14px; font-weight: 650; }
+.budget-parent-group > header > b { font-size: 12px; font-weight: 600; }
+.budget-parent-group > header > b small { color: var(--muted); font-size: 11px; font-weight: 400; }
+.budget-parent-group > header > .progress-track { grid-column: 1 / -1; }
+.budget-category-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(215px, 1fr)); gap: 10px; }
+:root[data-theme="dark"] .progress-track { background: #363a38; }
+:root[data-theme="dark"] .progress-track i,
+:root[data-theme="dark"] .progress-track i.warn,
+:root[data-theme="dark"] .progress-track i.over { background: #f1f2f1 !important; }
 @media (max-width: 680px) {
   .dashboard-insights-foldout { margin-top: 8px; }
   .dashboard-insights-foldout > .dashboard-grid { gap: 8px; }
+  .budget-category-grid { grid-template-columns: 1fr; }
 }
 
