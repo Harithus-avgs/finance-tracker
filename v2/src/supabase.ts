@@ -88,10 +88,13 @@ export async function saveOne(
 ): Promise<void> {
   if (!supabase) throw new Error('Supabase is not configured.');
   const table = DOMAIN_TABLES[key];
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from(table)
-    .upsert({ user_id: userId, id: record.id, data: record }, { onConflict: 'user_id,id' });
+    .upsert({ user_id: userId, id: record.id, data: record }, { onConflict: 'user_id,id' })
+    .select('id')
+    .maybeSingle();
   if (error) throw error;
+  if (!data?.id) throw new Error(`Supabase did not confirm saving this ${key.replace(/([A-Z])/g, ' $1').toLowerCase()} record.`);
 }
 
 export async function deleteOne(
