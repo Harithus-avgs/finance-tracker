@@ -120,7 +120,7 @@ export function money(value: number): string {
   return new Intl.NumberFormat('en-IN', {
     style: 'currency',
     currency: 'INR',
-    maximumFractionDigits: 0,
+    maximumFractionDigits: 2,
   }).format(Number.isFinite(value) ? value : 0);
 }
 
@@ -141,3 +141,4 @@ export function todayISO(): string {
     String(today.getDate()).padStart(2, '0'),
   ].join('-');
 }
+
