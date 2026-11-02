@@ -643,3 +643,70 @@ button.calendar-cell:hover, button.calendar-cell.selected { position: relative; 
 :root[data-theme="dark"] .account-menu button, :root[data-theme="dark"] .user-chip { color: var(--ink); }
 :root[data-theme="dark"] input, :root[data-theme="dark"] select, :root[data-theme="dark"] textarea { color: var(--ink); background-color: #202621; border-color: var(--line-strong); }
 :root[data-theme="dark"] .empty-state, :root[data-theme="dark"] .mobile-nav button { color: var(--muted-dark); }
+
+/* Quiet monochrome surfaces; color is reserved for income and expense amounts. */
+:root {
+  color: #202320;
+  background: #f7f7f6;
+  --bg: #f7f7f6;
+  --surface: #fff;
+  --surface-soft: #f2f3f2;
+  --line: #e9eae8;
+  --line-strong: #d9dbd8;
+  --ink: #202320;
+  --muted: #7c817d;
+  --muted-dark: #555b57;
+  --green: #333936;
+  --green-dark: #202522;
+  --green-soft: #eff0ef;
+  --mint: #e7e9e7;
+  --amber-soft: #f2f2f1;
+  --shadow: 0 10px 28px rgba(20, 24, 21, .045);
+}
+:root[data-theme="dark"] {
+  --bg: #181a19;
+  --surface: #202321;
+  --surface-soft: #282b29;
+  --line: #343835;
+  --line-strong: #484d49;
+  --ink: #eceeec;
+  --muted: #a0a5a1;
+  --muted-dark: #c3c6c4;
+  --green: #d4d8d5;
+  --green-dark: #f0f1f0;
+  --green-soft: #2c302e;
+  --mint: #343936;
+  --amber-soft: #373936;
+}
+.primary-button { color: #fff; background: #303532; border-color: #303532; box-shadow: none; }
+.primary-button:hover { color: #fff; background: #171b19; border-color: #171b19; }
+:root[data-theme="dark"] .primary-button { color: #181a19; background: #eceeec; border-color: #eceeec; }
+:root[data-theme="dark"] .primary-button:hover { background: #d4d8d5; border-color: #d4d8d5; }
+.nav-item.active { color: var(--ink); background: #eceeec; }
+:root[data-theme="dark"] .nav-item.active { color: var(--ink); background: #343936; }
+.daily-focus { border-color: var(--line); background: var(--surface); }
+.daily-copy strong, .daily-spent b { color: var(--ink); }
+.daily-icon, .stat-card > div > i, .stat-card.positive > div > i, .stat-card.accent > div > i,
+.row-icon, .row-icon.income, .empty-state > i, .option-icon, .option-icon.muted,
+.asset-title > span, .quiet-badge, .encouragement, .encouragement b, .encouragement small,
+.encouragement > i, .health-meter i, .connected > i {
+  color: var(--muted-dark);
+  background: var(--surface-soft);
+}
+.daily-spent { border-left-color: var(--line); }
+.stat-card, .panel, .summary-strip, .budget-summary, .budget-group-card,
+.account-list .simple-row, .credit-cards-list .simple-row, .investment-tile,
+.asset-item, .budget-item, .debt-item, .recurring-category-tile {
+  border-color: var(--line);
+  background: var(--surface);
+  box-shadow: none;
+}
+.simple-row { border-bottom-color: var(--line); }
+.budget-item-values > span { border-color: var(--line); background: var(--surface-soft); }
+.budget-item > .row-actions, .asset-item > .row-actions, .debt-item > .row-actions { border-top-color: var(--line); }
+.progress-track { background: var(--surface-soft); }
+.progress-track i, .progress-track i.warn, .progress-track i.over { background: #737a75; }
+.income-text, .stat-card.positive > strong { color: #21804b !important; }
+.danger-text, .stat-card.expense > strong { color: #bd3d3d !important; }
+:root[data-theme="dark"] .income-text, :root[data-theme="dark"] .stat-card.positive > strong { color: #75d49b !important; }
+:root[data-theme="dark"] .danger-text, :root[data-theme="dark"] .stat-card.expense > strong { color: #ff8585 !important; }
