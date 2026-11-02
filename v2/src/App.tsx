@@ -44,16 +44,24 @@ export default function App() {
   const dataRevisionRef = useRef(0);
   const realtimeRequestRef = useRef(0);
   const confirmedTransactionsRef = useRef<{ userId: string; records: Map<string, FinanceRecord> } | null>(null);
+  const sessionUserIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (!supabase) return;
     let alive = true;
     supabase.auth.getSession().then(({ data: value }) => {
-      if (alive) { setSession(value.session); setAuthReady(true); }
+      if (alive) {
+        sessionUserIdRef.current = value.session?.user.id ?? null;
+        setSession(value.session);
+        setAuthReady(true);
+      }
     }).catch(() => setAuthReady(true));
     const { data: listener } = supabase.auth.onAuthStateChange((_event, value) => {
+      const nextUserId = value?.user.id ?? null;
+      const accountChanged = nextUserId !== sessionUserIdRef.current;
+      sessionUserIdRef.current = nextUserId;
       setSession(value);
-      if (!previewMode) { setData(null); setDataReady(false); }
+      if (!previewMode && accountChanged) { setData(null); setDataReady(false); }
       setError('');
     });
     return () => { alive = false; listener.subscription.unsubscribe(); };
