@@ -96,9 +96,10 @@ export default function App() {
     let alive = true;
     setLoading(true);
     if (!data) setDataReady(false);
+    const revisionAtRequest = dataRevisionRef.current;
     loadFinanceData(session.user.id)
-      .then((value) => { if (alive) { setData(value); setDataReady(true); } })
-      .catch((reason: Error) => { if (alive) { setError(reason.message); setDataReady(true); } })
+      .then((value) => { if (alive && revisionAtRequest === dataRevisionRef.current) { setData(value); setDataReady(true); } })
+      .catch((reason: Error) => { if (alive && revisionAtRequest === dataRevisionRef.current) { setError(reason.message); setDataReady(true); } })
       .finally(() => { if (alive) setLoading(false); });
     return () => { alive = false; };
   }, [session?.user.id]);
